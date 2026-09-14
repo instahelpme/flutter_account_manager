@@ -36,3 +36,6 @@ flutter:
         pluginClass: AccountManagerPlugin
       ios:
         pluginClass: AccountManagerPlugin
+    swiftPackageManager:
+      ios:
+        pluginClassName: AccountManagerPlugin

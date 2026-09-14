@@ -2,22 +2,19 @@
 
 import 'package:pigeon/pigeon.dart';
 
-@ConfigurePigeon(PigeonOptions(
-  dartOut: 'lib/src/generated/account_manager_api.g.dart',
-  dartOptions: DartOptions(),
-  kotlinOut:
-      'android/src/main/kotlin/com/lkrjangid/account_manager/AccountManagerApi.g.kt',
-  kotlinOptions: KotlinOptions(
-    package: 'com.lkrjangid.account_manager',
+@ConfigurePigeon(
+  PigeonOptions(
+    dartOut: 'lib/src/generated/account_manager_api.g.dart',
+    dartOptions: DartOptions(),
+    kotlinOut: 'android/src/main/kotlin/com/lkrjangid/account_manager/AccountManagerApi.g.kt',
+    kotlinOptions: KotlinOptions(package: 'com.lkrjangid.account_manager'),
+    swiftOut: 'ios/flutter_account_manager/Sources/flutter_account_manager/AccountManagerApi.g.swift',
+    swiftOptions: SwiftOptions(),
   ),
-  swiftOut: 'ios/Classes/AccountManagerApi.g.swift',
-  swiftOptions: SwiftOptions(),
-))
-
+)
 // ============================================================================
 // DATA CLASSES
 // ============================================================================
-
 /// Represents a user account with associated metadata
 class AccountData {
   AccountData({
@@ -33,7 +30,6 @@ class AccountData {
   final Map<String?, String?>? userData;
 }
 
-
 /// Auth token request result
 class AuthTokenResult {
   AuthTokenResult({
@@ -48,7 +44,6 @@ class AuthTokenResult {
   final String? errorMessage;
   final bool? requiresUserInteraction;
 }
-
 
 // ============================================================================
 // FLUTTER -> NATIVE API
@@ -81,7 +76,10 @@ abstract class AccountManagerHostApi {
 
   @async
   bool validateCredentials(
-      String username, String password, String accountType);
+    String username,
+    String password,
+    String accountType,
+  );
 
   @async
   bool clearCredentials(AccountData account);
