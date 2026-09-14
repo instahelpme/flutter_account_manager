@@ -275,8 +275,8 @@ class _SyncCallbackHandler implements SyncCallbackFlutterApi {
   }
 
   @override
-  void onSyncConflict(AccountData account, String conflictId,
-      String localData, String remoteData) {
+  void onSyncConflict(AccountData account, String conflictId, String localData,
+      String remoteData) {
     _controller.add(SyncConflictEvent(
       account: Account.fromData(account),
       conflictId: conflictId,
