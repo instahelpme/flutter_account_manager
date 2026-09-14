@@ -68,14 +68,6 @@ private func nilOrValue<T>(_ value: Any?) -> T? {
   return value as! T?
 }
 
-/// Current sync status
-enum SyncStatus: Int {
-  case idle = 0
-  case pending = 1
-  case active = 2
-  case failed = 3
-}
-
 /// Represents a user account with associated metadata
 ///
 /// Generated class from Pigeon that represents data sent in messages.
@@ -106,112 +98,6 @@ struct AccountData {
       accountType,
       displayName,
       userData,
-    ]
-  }
-}
-
-/// Statistics from a completed sync operation
-///
-/// Generated class from Pigeon that represents data sent in messages.
-struct SyncStatsData {
-  var itemsUploaded: Int64
-  var itemsDownloaded: Int64
-  var conflicts: Int64
-  var syncTimeMs: Int64
-
-
-  // swift-format-ignore: AlwaysUseLowerCamelCase
-  static func fromList(_ pigeonVar_list: [Any?]) -> SyncStatsData? {
-    let itemsUploaded = pigeonVar_list[0] as! Int64
-    let itemsDownloaded = pigeonVar_list[1] as! Int64
-    let conflicts = pigeonVar_list[2] as! Int64
-    let syncTimeMs = pigeonVar_list[3] as! Int64
-
-    return SyncStatsData(
-      itemsUploaded: itemsUploaded,
-      itemsDownloaded: itemsDownloaded,
-      conflicts: conflicts,
-      syncTimeMs: syncTimeMs
-    )
-  }
-  func toList() -> [Any?] {
-    return [
-      itemsUploaded,
-      itemsDownloaded,
-      conflicts,
-      syncTimeMs,
-    ]
-  }
-}
-
-/// Result of a sync operation with statistics
-///
-/// Generated class from Pigeon that represents data sent in messages.
-struct SyncResultData {
-  var success: Bool
-  var errorCode: Int64? = nil
-  var errorMessage: String? = nil
-  var stats: SyncStatsData? = nil
-
-
-  // swift-format-ignore: AlwaysUseLowerCamelCase
-  static func fromList(_ pigeonVar_list: [Any?]) -> SyncResultData? {
-    let success = pigeonVar_list[0] as! Bool
-    let errorCode: Int64? = nilOrValue(pigeonVar_list[1])
-    let errorMessage: String? = nilOrValue(pigeonVar_list[2])
-    let stats: SyncStatsData? = nilOrValue(pigeonVar_list[3])
-
-    return SyncResultData(
-      success: success,
-      errorCode: errorCode,
-      errorMessage: errorMessage,
-      stats: stats
-    )
-  }
-  func toList() -> [Any?] {
-    return [
-      success,
-      errorCode,
-      errorMessage,
-      stats,
-    ]
-  }
-}
-
-/// Configuration for periodic sync scheduling
-///
-/// Generated class from Pigeon that represents data sent in messages.
-struct PeriodicSyncConfig {
-  var intervalSeconds: Int64
-  var flexSeconds: Int64? = nil
-  var requiresNetwork: Bool? = nil
-  var requiresCharging: Bool? = nil
-  var extras: [String?: String?]? = nil
-
-
-  // swift-format-ignore: AlwaysUseLowerCamelCase
-  static func fromList(_ pigeonVar_list: [Any?]) -> PeriodicSyncConfig? {
-    let intervalSeconds = pigeonVar_list[0] as! Int64
-    let flexSeconds: Int64? = nilOrValue(pigeonVar_list[1])
-    let requiresNetwork: Bool? = nilOrValue(pigeonVar_list[2])
-    let requiresCharging: Bool? = nilOrValue(pigeonVar_list[3])
-    let extras: [String?: String?]? = nilOrValue(pigeonVar_list[4])
-
-    return PeriodicSyncConfig(
-      intervalSeconds: intervalSeconds,
-      flexSeconds: flexSeconds,
-      requiresNetwork: requiresNetwork,
-      requiresCharging: requiresCharging,
-      extras: extras
-    )
-  }
-  func toList() -> [Any?] {
-    return [
-      intervalSeconds,
-      flexSeconds,
-      requiresNetwork,
-      requiresCharging,
-      extras,
     ]
   }
 }
@@ -250,57 +136,13 @@ struct AuthTokenResult {
   }
 }
 
-/// Sync progress update
-///
-/// Generated class from Pigeon that represents data sent in messages.
-struct SyncProgressData {
-  var phase: String
-  var progress: Double
-  var message: String? = nil
-
-
-  // swift-format-ignore: AlwaysUseLowerCamelCase
-  static func fromList(_ pigeonVar_list: [Any?]) -> SyncProgressData? {
-    let phase = pigeonVar_list[0] as! String
-    let progress = pigeonVar_list[1] as! Double
-    let message: String? = nilOrValue(pigeonVar_list[2])
-
-    return SyncProgressData(
-      phase: phase,
-      progress: progress,
-      message: message
-    )
-  }
-  func toList() -> [Any?] {
-    return [
-      phase,
-      progress,
-      message,
-    ]
-  }
-}
-
 private class AccountManagerApiPigeonCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
     case 129:
-      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
-      if let enumResultAsInt = enumResultAsInt {
-        return SyncStatus(rawValue: enumResultAsInt)
-      }
-      return nil
-    case 130:
       return AccountData.fromList(self.readValue() as! [Any?])
-    case 131:
-      return SyncStatsData.fromList(self.readValue() as! [Any?])
-    case 132:
-      return SyncResultData.fromList(self.readValue() as! [Any?])
-    case 133:
-      return PeriodicSyncConfig.fromList(self.readValue() as! [Any?])
-    case 134:
+    case 130:
       return AuthTokenResult.fromList(self.readValue() as! [Any?])
-    case 135:
-      return SyncProgressData.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
     }
@@ -309,26 +151,11 @@ private class AccountManagerApiPigeonCodecReader: FlutterStandardReader {
 
 private class AccountManagerApiPigeonCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
-    if let value = value as? SyncStatus {
+    if let value = value as? AccountData {
       super.writeByte(129)
-      super.writeValue(value.rawValue)
-    } else if let value = value as? AccountData {
-      super.writeByte(130)
-      super.writeValue(value.toList())
-    } else if let value = value as? SyncStatsData {
-      super.writeByte(131)
-      super.writeValue(value.toList())
-    } else if let value = value as? SyncResultData {
-      super.writeByte(132)
-      super.writeValue(value.toList())
-    } else if let value = value as? PeriodicSyncConfig {
-      super.writeByte(133)
       super.writeValue(value.toList())
     } else if let value = value as? AuthTokenResult {
-      super.writeByte(134)
-      super.writeValue(value.toList())
-    } else if let value = value as? SyncProgressData {
-      super.writeByte(135)
+      super.writeByte(130)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -367,13 +194,6 @@ protocol AccountManagerHostApi {
   func invalidateAuthToken(accountType: String, token: String, completion: @escaping (Result<Bool, Error>) -> Void)
   func invalidateAllTokens(account: AccountData, tokenType: String, completion: @escaping (Result<Bool, Error>) -> Void)
   func getAvailableTokenTypes(account: AccountData, completion: @escaping (Result<[String], Error>) -> Void)
-  func syncNow(account: AccountData, expedited: Bool, completion: @escaping (Result<SyncResultData, Error>) -> Void)
-  func setSyncAutomatically(account: AccountData, enabled: Bool, completion: @escaping (Result<Bool, Error>) -> Void)
-  func isSyncAutomatically(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void)
-  func addPeriodicSync(account: AccountData, config: PeriodicSyncConfig, completion: @escaping (Result<Bool, Error>) -> Void)
-  func removePeriodicSync(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void)
-  func getSyncStatus(account: AccountData, completion: @escaping (Result<SyncStatus, Error>) -> Void)
-  func cancelSync(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void)
   func openAccountSettings(completion: @escaping (Result<Bool, Error>) -> Void)
   func isConfigured(completion: @escaping (Result<Bool, Error>) -> Void)
   func getPlatformCapabilities(completion: @escaping (Result<[String: Bool], Error>) -> Void)
@@ -385,7 +205,7 @@ class AccountManagerHostApiSetup {
   /// Sets up an instance of `AccountManagerHostApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: AccountManagerHostApi?, messageChannelSuffix: String = "") {
     let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
-    let addAccountChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.addAccount\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let addAccountChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.addAccount\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       addAccountChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -403,7 +223,7 @@ class AccountManagerHostApiSetup {
     } else {
       addAccountChannel.setMessageHandler(nil)
     }
-    let getAccountsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getAccounts\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let getAccountsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAccounts\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getAccountsChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -420,7 +240,7 @@ class AccountManagerHostApiSetup {
     } else {
       getAccountsChannel.setMessageHandler(nil)
     }
-    let getAccountChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getAccount\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let getAccountChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAccount\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getAccountChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -438,7 +258,7 @@ class AccountManagerHostApiSetup {
     } else {
       getAccountChannel.setMessageHandler(nil)
     }
-    let updateAccountChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.updateAccount\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let updateAccountChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.updateAccount\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       updateAccountChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -455,7 +275,7 @@ class AccountManagerHostApiSetup {
     } else {
       updateAccountChannel.setMessageHandler(nil)
     }
-    let removeAccountChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.removeAccount\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let removeAccountChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.removeAccount\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       removeAccountChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -472,7 +292,7 @@ class AccountManagerHostApiSetup {
     } else {
       removeAccountChannel.setMessageHandler(nil)
     }
-    let accountExistsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.accountExists\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let accountExistsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.accountExists\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       accountExistsChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -490,7 +310,7 @@ class AccountManagerHostApiSetup {
     } else {
       accountExistsChannel.setMessageHandler(nil)
     }
-    let updateCredentialsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.updateCredentials\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let updateCredentialsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.updateCredentials\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       updateCredentialsChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -508,7 +328,7 @@ class AccountManagerHostApiSetup {
     } else {
       updateCredentialsChannel.setMessageHandler(nil)
     }
-    let validateCredentialsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.validateCredentials\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let validateCredentialsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.validateCredentials\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       validateCredentialsChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -527,7 +347,7 @@ class AccountManagerHostApiSetup {
     } else {
       validateCredentialsChannel.setMessageHandler(nil)
     }
-    let clearCredentialsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.clearCredentials\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let clearCredentialsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.clearCredentials\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       clearCredentialsChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -544,7 +364,7 @@ class AccountManagerHostApiSetup {
     } else {
       clearCredentialsChannel.setMessageHandler(nil)
     }
-    let getAuthTokenChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getAuthToken\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let getAuthTokenChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAuthToken\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getAuthTokenChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -562,7 +382,7 @@ class AccountManagerHostApiSetup {
     } else {
       getAuthTokenChannel.setMessageHandler(nil)
     }
-    let setAuthTokenChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.setAuthToken\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let setAuthTokenChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.setAuthToken\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       setAuthTokenChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -581,7 +401,7 @@ class AccountManagerHostApiSetup {
     } else {
       setAuthTokenChannel.setMessageHandler(nil)
     }
-    let invalidateAuthTokenChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.invalidateAuthToken\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let invalidateAuthTokenChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.invalidateAuthToken\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       invalidateAuthTokenChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -599,7 +419,7 @@ class AccountManagerHostApiSetup {
     } else {
       invalidateAuthTokenChannel.setMessageHandler(nil)
     }
-    let invalidateAllTokensChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.invalidateAllTokens\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let invalidateAllTokensChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.invalidateAllTokens\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       invalidateAllTokensChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -617,7 +437,7 @@ class AccountManagerHostApiSetup {
     } else {
       invalidateAllTokensChannel.setMessageHandler(nil)
     }
-    let getAvailableTokenTypesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getAvailableTokenTypes\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let getAvailableTokenTypesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAvailableTokenTypes\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getAvailableTokenTypesChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -634,129 +454,7 @@ class AccountManagerHostApiSetup {
     } else {
       getAvailableTokenTypesChannel.setMessageHandler(nil)
     }
-    let syncNowChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.syncNow\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      syncNowChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let accountArg = args[0] as! AccountData
-        let expeditedArg = args[1] as! Bool
-        api.syncNow(account: accountArg, expedited: expeditedArg) { result in
-          switch result {
-          case .success(let res):
-            reply(wrapResult(res))
-          case .failure(let error):
-            reply(wrapError(error))
-          }
-        }
-      }
-    } else {
-      syncNowChannel.setMessageHandler(nil)
-    }
-    let setSyncAutomaticallyChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.setSyncAutomatically\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      setSyncAutomaticallyChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let accountArg = args[0] as! AccountData
-        let enabledArg = args[1] as! Bool
-        api.setSyncAutomatically(account: accountArg, enabled: enabledArg) { result in
-          switch result {
-          case .success(let res):
-            reply(wrapResult(res))
-          case .failure(let error):
-            reply(wrapError(error))
-          }
-        }
-      }
-    } else {
-      setSyncAutomaticallyChannel.setMessageHandler(nil)
-    }
-    let isSyncAutomaticallyChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.isSyncAutomatically\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      isSyncAutomaticallyChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let accountArg = args[0] as! AccountData
-        api.isSyncAutomatically(account: accountArg) { result in
-          switch result {
-          case .success(let res):
-            reply(wrapResult(res))
-          case .failure(let error):
-            reply(wrapError(error))
-          }
-        }
-      }
-    } else {
-      isSyncAutomaticallyChannel.setMessageHandler(nil)
-    }
-    let addPeriodicSyncChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.addPeriodicSync\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      addPeriodicSyncChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let accountArg = args[0] as! AccountData
-        let configArg = args[1] as! PeriodicSyncConfig
-        api.addPeriodicSync(account: accountArg, config: configArg) { result in
-          switch result {
-          case .success(let res):
-            reply(wrapResult(res))
-          case .failure(let error):
-            reply(wrapError(error))
-          }
-        }
-      }
-    } else {
-      addPeriodicSyncChannel.setMessageHandler(nil)
-    }
-    let removePeriodicSyncChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.removePeriodicSync\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      removePeriodicSyncChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let accountArg = args[0] as! AccountData
-        api.removePeriodicSync(account: accountArg) { result in
-          switch result {
-          case .success(let res):
-            reply(wrapResult(res))
-          case .failure(let error):
-            reply(wrapError(error))
-          }
-        }
-      }
-    } else {
-      removePeriodicSyncChannel.setMessageHandler(nil)
-    }
-    let getSyncStatusChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getSyncStatus\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      getSyncStatusChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let accountArg = args[0] as! AccountData
-        api.getSyncStatus(account: accountArg) { result in
-          switch result {
-          case .success(let res):
-            reply(wrapResult(res))
-          case .failure(let error):
-            reply(wrapError(error))
-          }
-        }
-      }
-    } else {
-      getSyncStatusChannel.setMessageHandler(nil)
-    }
-    let cancelSyncChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.cancelSync\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      cancelSyncChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let accountArg = args[0] as! AccountData
-        api.cancelSync(account: accountArg) { result in
-          switch result {
-          case .success(let res):
-            reply(wrapResult(res))
-          case .failure(let error):
-            reply(wrapError(error))
-          }
-        }
-      }
-    } else {
-      cancelSyncChannel.setMessageHandler(nil)
-    }
-    let openAccountSettingsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.openAccountSettings\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let openAccountSettingsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.openAccountSettings\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       openAccountSettingsChannel.setMessageHandler { _, reply in
         api.openAccountSettings { result in
@@ -771,7 +469,7 @@ class AccountManagerHostApiSetup {
     } else {
       openAccountSettingsChannel.setMessageHandler(nil)
     }
-    let isConfiguredChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.isConfigured\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let isConfiguredChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.isConfigured\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       isConfiguredChannel.setMessageHandler { _, reply in
         api.isConfigured { result in
@@ -786,7 +484,7 @@ class AccountManagerHostApiSetup {
     } else {
       isConfiguredChannel.setMessageHandler(nil)
     }
-    let getPlatformCapabilitiesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getPlatformCapabilities\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let getPlatformCapabilitiesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getPlatformCapabilities\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getPlatformCapabilitiesChannel.setMessageHandler { _, reply in
         api.getPlatformCapabilities { result in
@@ -800,115 +498,6 @@ class AccountManagerHostApiSetup {
       }
     } else {
       getPlatformCapabilitiesChannel.setMessageHandler(nil)
-    }
-  }
-}
-/// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
-protocol SyncCallbackFlutterApiProtocol {
-  func onSyncStarted(account accountArg: AccountData, completion: @escaping (Result<Void, PigeonError>) -> Void)
-  func onSyncProgress(account accountArg: AccountData, progress progressArg: SyncProgressData, completion: @escaping (Result<Void, PigeonError>) -> Void)
-  func onSyncCompleted(account accountArg: AccountData, result resultArg: SyncResultData, completion: @escaping (Result<Void, PigeonError>) -> Void)
-  func onSyncCancelled(account accountArg: AccountData, completion: @escaping (Result<Void, PigeonError>) -> Void)
-  func onSyncConflict(account accountArg: AccountData, conflictId conflictIdArg: String, localData localDataArg: String, remoteData remoteDataArg: String, completion: @escaping (Result<Void, PigeonError>) -> Void)
-}
-class SyncCallbackFlutterApi: SyncCallbackFlutterApiProtocol {
-  private let binaryMessenger: FlutterBinaryMessenger
-  private let messageChannelSuffix: String
-  init(binaryMessenger: FlutterBinaryMessenger, messageChannelSuffix: String = "") {
-    self.binaryMessenger = binaryMessenger
-    self.messageChannelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
-  }
-  var codec: AccountManagerApiPigeonCodec {
-    return AccountManagerApiPigeonCodec.shared
-  }
-  func onSyncStarted(account accountArg: AccountData, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.account_manager.SyncCallbackFlutterApi.onSyncStarted\(messageChannelSuffix)"
-    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([accountArg] as [Any?]) { response in
-      guard let listResponse = response as? [Any?] else {
-        completion(.failure(createConnectionError(withChannelName: channelName)))
-        return
-      }
-      if listResponse.count > 1 {
-        let code: String = listResponse[0] as! String
-        let message: String? = nilOrValue(listResponse[1])
-        let details: String? = nilOrValue(listResponse[2])
-        completion(.failure(PigeonError(code: code, message: message, details: details)))
-      } else {
-        completion(.success(Void()))
-      }
-    }
-  }
-  func onSyncProgress(account accountArg: AccountData, progress progressArg: SyncProgressData, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.account_manager.SyncCallbackFlutterApi.onSyncProgress\(messageChannelSuffix)"
-    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([accountArg, progressArg] as [Any?]) { response in
-      guard let listResponse = response as? [Any?] else {
-        completion(.failure(createConnectionError(withChannelName: channelName)))
-        return
-      }
-      if listResponse.count > 1 {
-        let code: String = listResponse[0] as! String
-        let message: String? = nilOrValue(listResponse[1])
-        let details: String? = nilOrValue(listResponse[2])
-        completion(.failure(PigeonError(code: code, message: message, details: details)))
-      } else {
-        completion(.success(Void()))
-      }
-    }
-  }
-  func onSyncCompleted(account accountArg: AccountData, result resultArg: SyncResultData, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.account_manager.SyncCallbackFlutterApi.onSyncCompleted\(messageChannelSuffix)"
-    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([accountArg, resultArg] as [Any?]) { response in
-      guard let listResponse = response as? [Any?] else {
-        completion(.failure(createConnectionError(withChannelName: channelName)))
-        return
-      }
-      if listResponse.count > 1 {
-        let code: String = listResponse[0] as! String
-        let message: String? = nilOrValue(listResponse[1])
-        let details: String? = nilOrValue(listResponse[2])
-        completion(.failure(PigeonError(code: code, message: message, details: details)))
-      } else {
-        completion(.success(Void()))
-      }
-    }
-  }
-  func onSyncCancelled(account accountArg: AccountData, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.account_manager.SyncCallbackFlutterApi.onSyncCancelled\(messageChannelSuffix)"
-    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([accountArg] as [Any?]) { response in
-      guard let listResponse = response as? [Any?] else {
-        completion(.failure(createConnectionError(withChannelName: channelName)))
-        return
-      }
-      if listResponse.count > 1 {
-        let code: String = listResponse[0] as! String
-        let message: String? = nilOrValue(listResponse[1])
-        let details: String? = nilOrValue(listResponse[2])
-        completion(.failure(PigeonError(code: code, message: message, details: details)))
-      } else {
-        completion(.success(Void()))
-      }
-    }
-  }
-  func onSyncConflict(account accountArg: AccountData, conflictId conflictIdArg: String, localData localDataArg: String, remoteData remoteDataArg: String, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.account_manager.SyncCallbackFlutterApi.onSyncConflict\(messageChannelSuffix)"
-    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([accountArg, conflictIdArg, localDataArg, remoteDataArg] as [Any?]) { response in
-      guard let listResponse = response as? [Any?] else {
-        completion(.failure(createConnectionError(withChannelName: channelName)))
-        return
-      }
-      if listResponse.count > 1 {
-        let code: String = listResponse[0] as! String
-        let message: String? = nilOrValue(listResponse[1])
-        let details: String? = nilOrValue(listResponse[2])
-        completion(.failure(PigeonError(code: code, message: message, details: details)))
-      } else {
-        completion(.success(Void()))
-      }
     }
   }
 }
@@ -930,7 +519,7 @@ class AccountCallbackFlutterApi: AccountCallbackFlutterApiProtocol {
     return AccountManagerApiPigeonCodec.shared
   }
   func onAccountAdded(account accountArg: AccountData, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.account_manager.AccountCallbackFlutterApi.onAccountAdded\(messageChannelSuffix)"
+    let channelName: String = "dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountAdded\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([accountArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
@@ -948,7 +537,7 @@ class AccountCallbackFlutterApi: AccountCallbackFlutterApiProtocol {
     }
   }
   func onAccountRemoved(account accountArg: AccountData, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.account_manager.AccountCallbackFlutterApi.onAccountRemoved\(messageChannelSuffix)"
+    let channelName: String = "dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountRemoved\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([accountArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
@@ -966,7 +555,7 @@ class AccountCallbackFlutterApi: AccountCallbackFlutterApiProtocol {
     }
   }
   func onAccountUpdated(account accountArg: AccountData, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.account_manager.AccountCallbackFlutterApi.onAccountUpdated\(messageChannelSuffix)"
+    let channelName: String = "dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountUpdated\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([accountArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {
@@ -984,7 +573,7 @@ class AccountCallbackFlutterApi: AccountCallbackFlutterApiProtocol {
     }
   }
   func onAuthTokenExpired(account accountArg: AccountData, tokenType tokenTypeArg: String, completion: @escaping (Result<Void, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.account_manager.AccountCallbackFlutterApi.onAuthTokenExpired\(messageChannelSuffix)"
+    let channelName: String = "dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAuthTokenExpired\(messageChannelSuffix)"
     let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
     channel.sendMessage([accountArg, tokenTypeArg] as [Any?]) { response in
       guard let listResponse = response as? [Any?] else {

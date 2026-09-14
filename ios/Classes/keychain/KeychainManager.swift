@@ -2,12 +2,25 @@ import Foundation
 import Security
 
 /// Provides secure credential and auth token storage using iOS Keychain Services.
+///
+/// Pass a non-nil `accessGroup` to store and retrieve items in a shared Keychain
+/// Access Group (useful for cross-app credential sharing). When `accessGroup` is
+/// nil, items are stored in the app's private partition (default behaviour).
 class KeychainManager {
 
+    /// Convenience singleton with no access group — retains backward compatibility
+    /// for apps that do not need cross-app credential sharing.
     static let shared = KeychainManager()
-    private init() {}
 
     private let serviceName = "com.lkrjangid.account_manager"
+
+    /// The Keychain Access Group used for all operations, or nil for the app's
+    /// private partition.
+    let accessGroup: String?
+
+    init(accessGroup: String? = nil) {
+        self.accessGroup = accessGroup
+    }
 
     // MARK: - Credential Operations
 
@@ -61,12 +74,23 @@ class KeychainManager {
         "\(accountType):\(username):token:\(tokenType)"
     }
 
-    private func storeItem(key: String, data: Data) throws {
-        let query: [String: Any] = [
+    /// Base Keychain query dictionary for the given key.
+    /// Includes `kSecAttrAccessGroup` when an access group is configured.
+    private func baseQuery(key: String) -> [String: Any] {
+        var q: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: serviceName,
             kSecAttrAccount as String: key,
         ]
+        if let group = accessGroup {
+            q[kSecAttrAccessGroup as String] = group
+        }
+        return q
+    }
+
+    private func storeItem(key: String, data: Data) throws {
+        let query = baseQuery(key: key)
+        // Delete any existing item first (handles both insert and update).
         SecItemDelete(query as CFDictionary)
 
         var addQuery = query
@@ -80,13 +104,10 @@ class KeychainManager {
     }
 
     private func retrieveItem(key: String) throws -> Data? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: serviceName,
-            kSecAttrAccount as String: key,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-        ]
+        var query = baseQuery(key: key)
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         if status == errSecItemNotFound { return nil }
@@ -97,11 +118,7 @@ class KeychainManager {
     }
 
     private func deleteItem(key: String) throws {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: serviceName,
-            kSecAttrAccount as String: key,
-        ]
+        let query = baseQuery(key: key)
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
             throw KeychainError.unableToDelete(status: status)
