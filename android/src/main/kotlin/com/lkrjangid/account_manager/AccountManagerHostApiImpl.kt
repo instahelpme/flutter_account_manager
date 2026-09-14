@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
-import com.lkrjangid.account_manager.sync.SyncManager
 import com.lkrjangid.account_manager.utils.toAccountData
 import com.lkrjangid.account_manager.utils.toAndroidAccount
 import com.lkrjangid.account_manager.utils.toBundle
@@ -16,7 +15,6 @@ import kotlinx.coroutines.*
 /** Implements [AccountManagerHostApi] using Android's AccountManager system service. */
 class AccountManagerHostApiImpl(
     private val context: Context,
-    private val syncManager: SyncManager,
 ) : AccountManagerHostApi {
 
     private val accountManager: AccountManager = AccountManager.get(context)
@@ -47,8 +45,6 @@ class AccountManagerHostApiImpl(
                     account.displayName?.let {
                         accountManager.setUserData(androidAccount, "displayName", it)
                     }
-                    val authority = "${account.accountType}.provider"
-                    ContentResolver.setSyncAutomatically(androidAccount, authority, true)
                 }
                 withContext(Dispatchers.Main) { callback(Result.success(success)) }
             } catch (e: Exception) {
@@ -306,135 +302,6 @@ class AccountManagerHostApiImpl(
             try {
                 // Android doesn't expose available token types natively; return empty list.
                 withContext(Dispatchers.Main) { callback(Result.success(emptyList())) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { callback(Result.failure(e)) }
-            }
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Sync Operations
-    // -------------------------------------------------------------------------
-
-    override fun syncNow(
-        account: AccountData,
-        expedited: Boolean,
-        callback: (Result<SyncResultData>) -> Unit,
-    ) {
-        scope.launch {
-            try {
-                val result = syncManager.requestSync(account.username, account.accountType, expedited)
-                withContext(Dispatchers.Main) { callback(Result.success(result)) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    callback(
-                        Result.success(
-                            SyncResultData(success = false, errorCode = -1L, errorMessage = e.message)
-                        )
-                    )
-                }
-            }
-        }
-    }
-
-    override fun setSyncAutomatically(
-        account: AccountData,
-        enabled: Boolean,
-        callback: (Result<Boolean>) -> Unit,
-    ) {
-        scope.launch {
-            try {
-                val androidAccount = account.toAndroidAccount()
-                val authority = "${account.accountType}.provider"
-                ContentResolver.setSyncAutomatically(androidAccount, authority, enabled)
-                withContext(Dispatchers.Main) { callback(Result.success(true)) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { callback(Result.failure(e)) }
-            }
-        }
-    }
-
-    override fun isSyncAutomatically(
-        account: AccountData,
-        callback: (Result<Boolean>) -> Unit,
-    ) {
-        scope.launch {
-            try {
-                val androidAccount = account.toAndroidAccount()
-                val authority = "${account.accountType}.provider"
-                val result = ContentResolver.getSyncAutomatically(androidAccount, authority)
-                withContext(Dispatchers.Main) { callback(Result.success(result)) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { callback(Result.failure(e)) }
-            }
-        }
-    }
-
-    override fun addPeriodicSync(
-        account: AccountData,
-        config: PeriodicSyncConfig,
-        callback: (Result<Boolean>) -> Unit,
-    ) {
-        scope.launch {
-            try {
-                val androidAccount = account.toAndroidAccount()
-                val authority = "${account.accountType}.provider"
-                ContentResolver.removePeriodicSync(androidAccount, authority, Bundle.EMPTY)
-                ContentResolver.addPeriodicSync(
-                    androidAccount,
-                    authority,
-                    config.extras?.toBundle() ?: Bundle.EMPTY,
-                    config.intervalSeconds.toLong(),
-                )
-                withContext(Dispatchers.Main) { callback(Result.success(true)) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { callback(Result.failure(e)) }
-            }
-        }
-    }
-
-    override fun removePeriodicSync(
-        account: AccountData,
-        callback: (Result<Boolean>) -> Unit,
-    ) {
-        scope.launch {
-            try {
-                val androidAccount = account.toAndroidAccount()
-                val authority = "${account.accountType}.provider"
-                ContentResolver.removePeriodicSync(androidAccount, authority, Bundle.EMPTY)
-                withContext(Dispatchers.Main) { callback(Result.success(true)) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { callback(Result.failure(e)) }
-            }
-        }
-    }
-
-    override fun getSyncStatus(
-        account: AccountData,
-        callback: (Result<SyncStatus>) -> Unit,
-    ) {
-        scope.launch {
-            try {
-                val status = when {
-                    syncManager.isSyncActive(account.username, account.accountType) -> SyncStatus.ACTIVE
-                    syncManager.isSyncPending(account.username, account.accountType) -> SyncStatus.PENDING
-                    else -> SyncStatus.IDLE
-                }
-                withContext(Dispatchers.Main) { callback(Result.success(status)) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { callback(Result.failure(e)) }
-            }
-        }
-    }
-
-    override fun cancelSync(
-        account: AccountData,
-        callback: (Result<Boolean>) -> Unit,
-    ) {
-        scope.launch {
-            try {
-                syncManager.cancelSync(account.username, account.accountType)
-                withContext(Dispatchers.Main) { callback(Result.success(true)) }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) { callback(Result.failure(e)) }
             }

@@ -33,60 +33,6 @@ class AccountData {
   final Map<String?, String?>? userData;
 }
 
-/// Statistics from a completed sync operation
-class SyncStatsData {
-  SyncStatsData({
-    required this.itemsUploaded,
-    required this.itemsDownloaded,
-    required this.conflicts,
-    required this.syncTimeMs,
-  });
-
-  final int itemsUploaded;
-  final int itemsDownloaded;
-  final int conflicts;
-  final int syncTimeMs;
-}
-
-/// Result of a sync operation with statistics
-class SyncResultData {
-  SyncResultData({
-    required this.success,
-    this.errorCode,
-    this.errorMessage,
-    this.stats,
-  });
-
-  final bool success;
-  final int? errorCode;
-  final String? errorMessage;
-  final SyncStatsData? stats;
-}
-
-/// Configuration for periodic sync scheduling
-class PeriodicSyncConfig {
-  PeriodicSyncConfig({
-    required this.intervalSeconds,
-    this.flexSeconds,
-    this.requiresNetwork,
-    this.requiresCharging,
-    this.extras,
-  });
-
-  final int intervalSeconds;
-  final int? flexSeconds;
-  final bool? requiresNetwork;
-  final bool? requiresCharging;
-  final Map<String?, String?>? extras;
-}
-
-/// Current sync status
-enum SyncStatus {
-  idle,
-  pending,
-  active,
-  failed,
-}
 
 /// Auth token request result
 class AuthTokenResult {
@@ -103,18 +49,6 @@ class AuthTokenResult {
   final bool? requiresUserInteraction;
 }
 
-/// Sync progress update
-class SyncProgressData {
-  SyncProgressData({
-    required this.phase,
-    required this.progress,
-    this.message,
-  });
-
-  final String phase;
-  final double progress;
-  final String? message;
-}
 
 // ============================================================================
 // FLUTTER -> NATIVE API
@@ -168,28 +102,6 @@ abstract class AccountManagerHostApi {
   @async
   List<String> getAvailableTokenTypes(AccountData account);
 
-  // Sync Operations
-  @async
-  SyncResultData syncNow(AccountData account, bool expedited);
-
-  @async
-  bool setSyncAutomatically(AccountData account, bool enabled);
-
-  @async
-  bool isSyncAutomatically(AccountData account);
-
-  @async
-  bool addPeriodicSync(AccountData account, PeriodicSyncConfig config);
-
-  @async
-  bool removePeriodicSync(AccountData account);
-
-  @async
-  SyncStatus getSyncStatus(AccountData account);
-
-  @async
-  bool cancelSync(AccountData account);
-
   // Platform-Specific
   @async
   bool openAccountSettings();
@@ -204,16 +116,6 @@ abstract class AccountManagerHostApi {
 // ============================================================================
 // NATIVE -> FLUTTER API (Callbacks)
 // ============================================================================
-
-@FlutterApi()
-abstract class SyncCallbackFlutterApi {
-  void onSyncStarted(AccountData account);
-  void onSyncProgress(AccountData account, SyncProgressData progress);
-  void onSyncCompleted(AccountData account, SyncResultData result);
-  void onSyncCancelled(AccountData account);
-  void onSyncConflict(AccountData account, String conflictId,
-      String localData, String remoteData);
-}
 
 @FlutterApi()
 abstract class AccountCallbackFlutterApi {

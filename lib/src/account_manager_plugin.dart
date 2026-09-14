@@ -1,11 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'generated/account_manager_api.g.dart';
 import 'exceptions.dart';
 import 'models/account.dart';
 import 'models/account_event.dart';
-import 'models/sync_event.dart';
-import 'models/sync_result.dart';
 
 /// Main entry point for the Account Manager Plugin.
 ///
@@ -30,13 +29,8 @@ class AccountManagerPlugin {
 
   final AccountManagerHostApi _hostApi;
 
-  final StreamController<SyncEvent> _syncEventController =
-      StreamController<SyncEvent>.broadcast();
   final StreamController<AccountEvent> _accountEventController =
       StreamController<AccountEvent>.broadcast();
-
-  /// Stream of sync-related events (started, progress, completed, cancelled, conflict).
-  Stream<SyncEvent> get syncEvents => _syncEventController.stream;
 
   /// Stream of account-related events (added, removed, updated, token expired).
   Stream<AccountEvent> get accountEvents => _accountEventController.stream;
@@ -45,9 +39,27 @@ class AccountManagerPlugin {
   // Lifecycle
   // ---------------------------------------------------------------------------
 
+  static const _configChannel =
+      MethodChannel('flutter_account_manager/config');
+
   /// Initialises the plugin. Must be called before any other operations.
-  Future<void> initialize() async {
-    SyncCallbackFlutterApi.setUp(_SyncCallbackHandler(_syncEventController));
+  ///
+  /// [keychainAccessGroup] (iOS only) sets the Keychain Access Group used for
+  /// all subsequent Keychain operations. Pass the group that matches the
+  /// entitlement in your app — e.g. `'me.instahelp'` — to enable cross-app
+  /// credential sharing. Has no effect on Android.
+  Future<void> initialize({String? keychainAccessGroup}) async {
+    if (keychainAccessGroup != null) {
+      try {
+        await _configChannel.invokeMethod<void>('configure', {
+          'keychainAccessGroup': keychainAccessGroup,
+        });
+      } catch (_) {
+        // Silently ignore — Android has no keychain access groups, and the
+        // channel handler may not be registered on all platforms.
+      }
+    }
+
     AccountCallbackFlutterApi.setUp(
         _AccountCallbackHandler(_accountEventController));
 
@@ -62,7 +74,6 @@ class AccountManagerPlugin {
 
   /// Releases resources. Call when the plugin is no longer needed.
   Future<void> dispose() async {
-    await _syncEventController.close();
     await _accountEventController.close();
   }
 
@@ -165,65 +176,6 @@ class AccountManagerPlugin {
   }
 
   // ---------------------------------------------------------------------------
-  // Synchronisation
-  // ---------------------------------------------------------------------------
-
-  /// Triggers an immediate sync for [account].
-  ///
-  /// Set [expedited] to `true` to prioritise this sync (Android only).
-  Future<SyncResult> syncNow(Account account, {bool expedited = false}) async {
-    final data = await _hostApi.syncNow(account.toData(), expedited);
-    return SyncResult.fromData(data);
-  }
-
-  /// Enables or disables automatic sync for [account].
-  Future<bool> setSyncAutomatically(Account account, bool enabled) {
-    return _hostApi.setSyncAutomatically(account.toData(), enabled);
-  }
-
-  /// Returns `true` if automatic sync is enabled for [account].
-  Future<bool> isSyncAutomatically(Account account) {
-    return _hostApi.isSyncAutomatically(account.toData());
-  }
-
-  /// Schedules periodic sync for [account] at the given [interval].
-  ///
-  /// Minimum interval is 15 minutes on both platforms.
-  Future<bool> addPeriodicSync(
-    Account account,
-    Duration interval, {
-    Map<String, String>? extras,
-    bool requiresNetwork = true,
-    bool requiresCharging = false,
-  }) {
-    if (interval.inMinutes < 15) {
-      throw ArgumentError('Minimum sync interval is 15 minutes');
-    }
-    final config = PeriodicSyncConfig(
-      intervalSeconds: interval.inSeconds,
-      requiresNetwork: requiresNetwork,
-      requiresCharging: requiresCharging,
-      extras: extras?.cast<String?, String?>(),
-    );
-    return _hostApi.addPeriodicSync(account.toData(), config);
-  }
-
-  /// Removes periodic sync for [account].
-  Future<bool> removePeriodicSync(Account account) {
-    return _hostApi.removePeriodicSync(account.toData());
-  }
-
-  /// Returns the current [SyncStatus] for [account].
-  Future<SyncStatus> getSyncStatus(Account account) {
-    return _hostApi.getSyncStatus(account.toData());
-  }
-
-  /// Cancels any pending or active sync for [account].
-  Future<bool> cancelSync(Account account) {
-    return _hostApi.cancelSync(account.toData());
-  }
-
-  // ---------------------------------------------------------------------------
   // Platform-Specific
   // ---------------------------------------------------------------------------
 
@@ -243,48 +195,6 @@ class AccountManagerPlugin {
 // Internal FlutterApi implementations
 // ---------------------------------------------------------------------------
 
-class _SyncCallbackHandler implements SyncCallbackFlutterApi {
-  _SyncCallbackHandler(this._controller);
-
-  final StreamController<SyncEvent> _controller;
-
-  @override
-  void onSyncStarted(AccountData account) {
-    _controller.add(SyncStartedEvent(account: Account.fromData(account)));
-  }
-
-  @override
-  void onSyncProgress(AccountData account, SyncProgressData progress) {
-    _controller.add(SyncProgressEvent(
-      account: Account.fromData(account),
-      progress: SyncProgress.fromData(progress),
-    ));
-  }
-
-  @override
-  void onSyncCompleted(AccountData account, SyncResultData result) {
-    _controller.add(SyncCompletedEvent(
-      account: Account.fromData(account),
-      result: SyncResult.fromData(result),
-    ));
-  }
-
-  @override
-  void onSyncCancelled(AccountData account) {
-    _controller.add(SyncCancelledEvent(account: Account.fromData(account)));
-  }
-
-  @override
-  void onSyncConflict(AccountData account, String conflictId,
-      String localData, String remoteData) {
-    _controller.add(SyncConflictEvent(
-      account: Account.fromData(account),
-      conflictId: conflictId,
-      localData: localData,
-      remoteData: remoteData,
-    ));
-  }
-}
 
 class _AccountCallbackHandler implements AccountCallbackFlutterApi {
   _AccountCallbackHandler(this._controller);

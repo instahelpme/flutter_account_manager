@@ -59,35 +59,6 @@
                 android:resource="@xml/authenticator" />
         </service>
 
-        <!--
-            SyncService
-            ═══════════
-            Bound by SyncManager framework to reach our SyncAdapter.
-            Runs in :sync process to keep it alive independently.
-        -->
-        <service
-            android:name=".sync.SyncService"
-            android:exported="true"
-            android:process=":sync">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter" />
-        </service>
-
-        <!--
-            AppContentProvider
-            ══════════════════
-            Required by SyncAdapter — Android needs a ContentProvider for every
-            sync authority. android:syncable="true" marks it as sync-capable.
-        -->
-        <provider
-            android:name=".provider.AppContentProvider"
-            android:authorities="com.lkrjangid.account_manager.provider"
-            android:exported="false"
-            android:syncable="true" />
 
     </application>
 
