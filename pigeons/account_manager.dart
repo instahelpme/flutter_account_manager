@@ -33,7 +33,6 @@ class AccountData {
   final Map<String?, String?>? userData;
 }
 
-
 /// Auth token request result
 class AuthTokenResult {
   AuthTokenResult({
@@ -48,7 +47,6 @@ class AuthTokenResult {
   final String? errorMessage;
   final bool? requiresUserInteraction;
 }
-
 
 // ============================================================================
 // FLUTTER -> NATIVE API
