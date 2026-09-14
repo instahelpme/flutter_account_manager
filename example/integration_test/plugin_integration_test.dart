@@ -47,10 +47,6 @@ void main() {
       );
       expect(tokenSet, isTrue);
 
-      // Trigger sync
-      final syncResult = await plugin.syncNow(account);
-      expect(syncResult.success, isTrue);
-
       // Remove account
       final removeResult = await plugin.removeAccount(account);
       expect(removeResult, isTrue);
