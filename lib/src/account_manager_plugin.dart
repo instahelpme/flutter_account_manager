@@ -1,8 +1,12 @@
+// Dart imports:
 import 'dart:async';
 
+// Flutter imports:
 import 'package:flutter/services.dart';
-import 'generated/account_manager_api.g.dart';
+
+// Project imports:
 import 'exceptions.dart';
+import 'generated/account_manager_api.g.dart';
 import 'models/account.dart';
 import 'models/account_event.dart';
 

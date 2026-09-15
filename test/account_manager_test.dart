@@ -1,9 +1,11 @@
+// Package imports:
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_account_manager/account_manager.dart';
-import 'package:flutter_account_manager/src/generated/account_manager_api.g.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+// Project imports:
+import 'package:flutter_account_manager/account_manager.dart';
+import 'package:flutter_account_manager/src/generated/account_manager_api.g.dart';
 import 'account_manager_test.mocks.dart';
 
 @GenerateMocks([AccountManagerHostApi])
