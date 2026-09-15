@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'generated/account_manager_api.g.dart';
 import 'exceptions.dart';
+import 'generated/account_manager_api.g.dart';
 import 'models/account.dart';
 import 'models/account_event.dart';
 
@@ -174,7 +174,6 @@ class AccountManagerPlugin {
 // ---------------------------------------------------------------------------
 // Internal FlutterApi implementations
 // ---------------------------------------------------------------------------
-
 
 class _AccountCallbackHandler implements AccountCallbackFlutterApi {
   _AccountCallbackHandler(this._controller);
