@@ -15,7 +15,8 @@ PlatformException _createConnectionError(String channelName) {
   );
 }
 
-List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
+List<Object?> wrapResponse(
+    {Object? result, PlatformException? error, bool empty = false}) {
   if (empty) {
     return <Object?>[];
   }
@@ -99,7 +100,6 @@ class AuthTokenResult {
   }
 }
 
-
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -107,10 +107,10 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is AccountData) {
+    } else if (value is AccountData) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    }    else if (value is AuthTokenResult) {
+    } else if (value is AuthTokenResult) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
     } else {
@@ -121,9 +121,9 @@ class _PigeonCodec extends StandardMessageCodec {
   @override
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
-      case 129: 
+      case 129:
         return AccountData.decode(readValue(buffer)!);
-      case 130: 
+      case 130:
         return AuthTokenResult.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -135,9 +135,11 @@ class AccountManagerHostApi {
   /// Constructor for [AccountManagerHostApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  AccountManagerHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+  AccountManagerHostApi(
+      {BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
       : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+        pigeonVar_messageChannelSuffix =
+            messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -145,14 +147,16 @@ class AccountManagerHostApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<bool> addAccount(AccountData account, String password) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.addAccount$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.addAccount$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[account, password]) as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[account, password]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -172,8 +176,10 @@ class AccountManagerHostApi {
   }
 
   Future<List<AccountData>> getAccounts(String accountType) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAccounts$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAccounts$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
@@ -199,14 +205,16 @@ class AccountManagerHostApi {
   }
 
   Future<AccountData?> getAccount(String username, String accountType) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAccount$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAccount$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[username, accountType]) as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[username, accountType]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -221,8 +229,10 @@ class AccountManagerHostApi {
   }
 
   Future<bool> updateAccount(AccountData account) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.updateAccount$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.updateAccount$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
@@ -248,8 +258,10 @@ class AccountManagerHostApi {
   }
 
   Future<bool> removeAccount(AccountData account) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.removeAccount$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.removeAccount$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
@@ -275,14 +287,16 @@ class AccountManagerHostApi {
   }
 
   Future<bool> accountExists(String username, String accountType) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.accountExists$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.accountExists$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[username, accountType]) as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[username, accountType]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -301,15 +315,18 @@ class AccountManagerHostApi {
     }
   }
 
-  Future<bool> updateCredentials(AccountData account, String newPassword) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.updateCredentials$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+  Future<bool> updateCredentials(
+      AccountData account, String newPassword) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.updateCredentials$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[account, newPassword]) as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[account, newPassword]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -328,15 +345,18 @@ class AccountManagerHostApi {
     }
   }
 
-  Future<bool> validateCredentials(String username, String password, String accountType) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.validateCredentials$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+  Future<bool> validateCredentials(
+      String username, String password, String accountType) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.validateCredentials$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[username, password, accountType]) as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[username, password, accountType]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -356,8 +376,10 @@ class AccountManagerHostApi {
   }
 
   Future<bool> clearCredentials(AccountData account) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.clearCredentials$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.clearCredentials$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
@@ -382,15 +404,18 @@ class AccountManagerHostApi {
     }
   }
 
-  Future<AuthTokenResult> getAuthToken(AccountData account, String tokenType) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAuthToken$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+  Future<AuthTokenResult> getAuthToken(
+      AccountData account, String tokenType) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAuthToken$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[account, tokenType]) as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[account, tokenType]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -409,15 +434,18 @@ class AccountManagerHostApi {
     }
   }
 
-  Future<bool> setAuthToken(AccountData account, String tokenType, String token) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.setAuthToken$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+  Future<bool> setAuthToken(
+      AccountData account, String tokenType, String token) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.setAuthToken$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[account, tokenType, token]) as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[account, tokenType, token]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -437,14 +465,16 @@ class AccountManagerHostApi {
   }
 
   Future<bool> invalidateAuthToken(String accountType, String token) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.invalidateAuthToken$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.invalidateAuthToken$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[accountType, token]) as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[accountType, token]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -463,15 +493,18 @@ class AccountManagerHostApi {
     }
   }
 
-  Future<bool> invalidateAllTokens(AccountData account, String tokenType) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.invalidateAllTokens$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+  Future<bool> invalidateAllTokens(
+      AccountData account, String tokenType) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.invalidateAllTokens$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final List<Object?>? pigeonVar_replyList =
-        await pigeonVar_channel.send(<Object?>[account, tokenType]) as List<Object?>?;
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[account, tokenType]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {
@@ -491,8 +524,10 @@ class AccountManagerHostApi {
   }
 
   Future<List<String>> getAvailableTokenTypes(AccountData account) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAvailableTokenTypes$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAvailableTokenTypes$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
@@ -518,8 +553,10 @@ class AccountManagerHostApi {
   }
 
   Future<bool> openAccountSettings() async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.openAccountSettings$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.openAccountSettings$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
@@ -545,8 +582,10 @@ class AccountManagerHostApi {
   }
 
   Future<bool> isConfigured() async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.isConfigured$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.isConfigured$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
@@ -572,8 +611,10 @@ class AccountManagerHostApi {
   }
 
   Future<Map<String, bool>> getPlatformCapabilities() async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getPlatformCapabilities$pigeonVar_messageChannelSuffix';
-    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getPlatformCapabilities$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
@@ -594,7 +635,8 @@ class AccountManagerHostApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (pigeonVar_replyList[0] as Map<Object?, Object?>?)!.cast<String, bool>();
+      return (pigeonVar_replyList[0] as Map<Object?, Object?>?)!
+          .cast<String, bool>();
     }
   }
 }
@@ -610,18 +652,26 @@ abstract class AccountCallbackFlutterApi {
 
   void onAuthTokenExpired(AccountData account, String tokenType);
 
-  static void setUp(AccountCallbackFlutterApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
-    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  static void setUp(
+    AccountCallbackFlutterApi? api, {
+    BinaryMessenger? binaryMessenger,
+    String messageChannelSuffix = '',
+  }) {
+    messageChannelSuffix =
+        messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
-      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountAdded$messageChannelSuffix', pigeonChannelCodec,
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountAdded$messageChannelSuffix',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountAdded was null.');
+              'Argument for dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountAdded was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final AccountData? arg_account = (args[0] as AccountData?);
           assert(arg_account != null,
@@ -631,22 +681,26 @@ abstract class AccountCallbackFlutterApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountRemoved$messageChannelSuffix', pigeonChannelCodec,
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountRemoved$messageChannelSuffix',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountRemoved was null.');
+              'Argument for dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountRemoved was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final AccountData? arg_account = (args[0] as AccountData?);
           assert(arg_account != null,
@@ -656,22 +710,26 @@ abstract class AccountCallbackFlutterApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountUpdated$messageChannelSuffix', pigeonChannelCodec,
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountUpdated$messageChannelSuffix',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountUpdated was null.');
+              'Argument for dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountUpdated was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final AccountData? arg_account = (args[0] as AccountData?);
           assert(arg_account != null,
@@ -681,22 +739,26 @@ abstract class AccountCallbackFlutterApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
-      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAuthTokenExpired$messageChannelSuffix', pigeonChannelCodec,
+      final BasicMessageChannel<
+          Object?> pigeonVar_channel = BasicMessageChannel<
+              Object?>(
+          'dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAuthTokenExpired$messageChannelSuffix',
+          pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAuthTokenExpired was null.');
+              'Argument for dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAuthTokenExpired was null.');
           final List<Object?> args = (message as List<Object?>?)!;
           final AccountData? arg_account = (args[0] as AccountData?);
           assert(arg_account != null,
@@ -709,8 +771,9 @@ abstract class AccountCallbackFlutterApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          } catch (e) {
+            return wrapResponse(
+                error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }

@@ -39,8 +39,7 @@ class AccountManagerPlugin {
   // Lifecycle
   // ---------------------------------------------------------------------------
 
-  static const _configChannel =
-      MethodChannel('flutter_account_manager/config');
+  static const _configChannel = MethodChannel('flutter_account_manager/config');
 
   /// Initialises the plugin. Must be called before any other operations.
   ///
@@ -194,7 +193,6 @@ class AccountManagerPlugin {
 // ---------------------------------------------------------------------------
 // Internal FlutterApi implementations
 // ---------------------------------------------------------------------------
-
 
 class _AccountCallbackHandler implements AccountCallbackFlutterApi {
   _AccountCallbackHandler(this._controller);
