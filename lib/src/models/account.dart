@@ -1,4 +1,3 @@
-// Project imports:
 import '../../src/generated/account_manager_api.g.dart';
 
 /// A user account with associated metadata.

@@ -1,4 +1,3 @@
-// Project imports:
 import 'account.dart';
 
 /// Base class for account-related events emitted by [AccountManagerPlugin.accountEvents].
