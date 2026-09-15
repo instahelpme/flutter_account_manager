@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'generated/account_manager_api.g.dart';
+
 import 'exceptions.dart';
+import 'generated/account_manager_api.g.dart';
 import 'models/account.dart';
 import 'models/account_event.dart';
 
@@ -39,8 +40,7 @@ class AccountManagerPlugin {
   // Lifecycle
   // ---------------------------------------------------------------------------
 
-  static const _configChannel =
-      MethodChannel('flutter_account_manager/config');
+  static const _configChannel = MethodChannel('flutter_account_manager/config');
 
   /// Initialises the plugin. Must be called before any other operations.
   ///
@@ -194,7 +194,6 @@ class AccountManagerPlugin {
 // ---------------------------------------------------------------------------
 // Internal FlutterApi implementations
 // ---------------------------------------------------------------------------
-
 
 class _AccountCallbackHandler implements AccountCallbackFlutterApi {
   _AccountCallbackHandler(this._controller);

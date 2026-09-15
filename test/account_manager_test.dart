@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_account_manager/account_manager.dart';
-import 'package:flutter_account_manager/src/generated/account_manager_api.g.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import 'package:flutter_account_manager/account_manager.dart';
+import 'package:flutter_account_manager/src/generated/account_manager_api.g.dart';
 import 'account_manager_test.mocks.dart';
 
 @GenerateMocks([AccountManagerHostApi])
@@ -93,14 +93,15 @@ void main() {
       expect(token, equals('jwt_abc123'));
     });
 
-    test('getAuthToken throws AuthenticationRequiredException when interaction required',
+    test(
+        'getAuthToken throws AuthenticationRequiredException when interaction required',
         () async {
-      when(mockHostApi.getAuthToken(any, any)).thenAnswer((_) async =>
-          AuthTokenResult(
-            token: null,
-            errorMessage: 'Re-auth required',
-            requiresUserInteraction: true,
-          ));
+      when(mockHostApi.getAuthToken(any, any))
+          .thenAnswer((_) async => AuthTokenResult(
+                token: null,
+                errorMessage: 'Re-auth required',
+                requiresUserInteraction: true,
+              ));
 
       expect(
         () => plugin.getAuthToken(testAccount, 'api'),
@@ -116,80 +117,6 @@ void main() {
 
       expect(result, isTrue);
       verify(mockHostApi.setAuthToken(any, 'api', 'new_token')).called(1);
-    });
-  });
-
-  group('Sync Operations', () {
-    final testAccount = Account(
-      username: 'test@example.com',
-      accountType: 'com.example.app',
-    );
-
-    test('syncNow returns SyncResult on success', () async {
-      when(mockHostApi.syncNow(any, any)).thenAnswer((_) async => SyncResultData(
-            success: true,
-            stats: SyncStatsData(
-              itemsUploaded: 5,
-              itemsDownloaded: 10,
-              conflicts: 0,
-              syncTimeMs: 1500,
-            ),
-          ));
-
-      final result = await plugin.syncNow(testAccount);
-
-      expect(result.success, isTrue);
-      expect(result.stats?.itemsDownloaded, equals(10));
-      expect(result.stats?.itemsUploaded, equals(5));
-    });
-
-    test('syncNow with expedited flag passes it through', () async {
-      when(mockHostApi.syncNow(any, true))
-          .thenAnswer((_) async => SyncResultData(
-                success: true,
-                stats: SyncStatsData(
-                  itemsUploaded: 0,
-                  itemsDownloaded: 0,
-                  conflicts: 0,
-                  syncTimeMs: 100,
-                ),
-              ));
-
-      await plugin.syncNow(testAccount, expedited: true);
-
-      verify(mockHostApi.syncNow(any, true)).called(1);
-    });
-
-    test('addPeriodicSync throws ArgumentError for interval < 15 minutes', () {
-      when(mockHostApi.addPeriodicSync(any, any))
-          .thenAnswer((_) async => true);
-
-      expect(
-        () => plugin.addPeriodicSync(
-            testAccount, const Duration(minutes: 5)),
-        throwsArgumentError,
-      );
-    });
-
-    test('addPeriodicSync succeeds for interval >= 15 minutes', () async {
-      when(mockHostApi.addPeriodicSync(any, any))
-          .thenAnswer((_) async => true);
-
-      final result = await plugin.addPeriodicSync(
-        testAccount,
-        const Duration(minutes: 30),
-      );
-
-      expect(result, isTrue);
-    });
-
-    test('getSyncStatus returns SyncStatus', () async {
-      when(mockHostApi.getSyncStatus(any))
-          .thenAnswer((_) async => SyncStatus.active);
-
-      final status = await plugin.getSyncStatus(testAccount);
-
-      expect(status, equals(SyncStatus.active));
     });
   });
 

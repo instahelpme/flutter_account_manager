@@ -23,10 +23,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
-  pigeon: ^22.0.0
+  flutter_lints: ^6.0.0
+  pigeon: ^29.0.1
   mockito: ^5.4.4
   build_runner: ^2.4.8
+  import_sorter: ^4.6.0
 
 flutter:
   plugin:
@@ -36,3 +37,6 @@ flutter:
         pluginClass: AccountManagerPlugin
       ios:
         pluginClass: AccountManagerPlugin
+    swiftPackageManager:
+      ios:
+        pluginClassName: AccountManagerPlugin
