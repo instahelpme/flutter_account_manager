@@ -52,62 +52,62 @@ class AuthTokenResult {
 @HostApi()
 abstract class AccountManagerHostApi {
   // Account Operations
-  @async
+  @asyncCallback
   bool addAccount(AccountData account, String password);
 
-  @async
+  @asyncCallback
   List<AccountData> getAccounts(String accountType);
 
-  @async
+  @asyncCallback
   AccountData? getAccount(String username, String accountType);
 
-  @async
+  @asyncCallback
   bool updateAccount(AccountData account);
 
-  @async
+  @asyncCallback
   bool removeAccount(AccountData account);
 
-  @async
+  @asyncCallback
   bool accountExists(String username, String accountType);
 
   // Credential Operations
-  @async
+  @asyncCallback
   bool updateCredentials(AccountData account, String newPassword);
 
-  @async
+  @asyncCallback
   bool validateCredentials(
     String username,
     String password,
     String accountType,
   );
 
-  @async
+  @asyncCallback
   bool clearCredentials(AccountData account);
 
   // Auth Token Operations
-  @async
+  @asyncCallback
   AuthTokenResult getAuthToken(AccountData account, String tokenType);
 
-  @async
+  @asyncCallback
   bool setAuthToken(AccountData account, String tokenType, String token);
 
-  @async
+  @asyncCallback
   bool invalidateAuthToken(String accountType, String token);
 
-  @async
+  @asyncCallback
   bool invalidateAllTokens(AccountData account, String tokenType);
 
-  @async
+  @asyncCallback
   List<String> getAvailableTokenTypes(AccountData account);
 
   // Platform-Specific
-  @async
+  @asyncCallback
   bool openAccountSettings();
 
-  @async
+  @asyncCallback
   bool isConfigured();
 
-  @async
+  @asyncCallback
   Map<String, bool> getPlatformCapabilities();
 }
 

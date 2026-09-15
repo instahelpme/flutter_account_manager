@@ -340,23 +340,23 @@ private open class AccountManagerApiPigeonCodec : StandardMessageCodec() {
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface AccountManagerHostApi {
-  suspend fun addAccount(account: AccountData, password: String): Boolean
-  suspend fun getAccounts(accountType: String): List<AccountData>
-  suspend fun getAccount(username: String, accountType: String): AccountData?
-  suspend fun updateAccount(account: AccountData): Boolean
-  suspend fun removeAccount(account: AccountData): Boolean
-  suspend fun accountExists(username: String, accountType: String): Boolean
-  suspend fun updateCredentials(account: AccountData, newPassword: String): Boolean
-  suspend fun validateCredentials(username: String, password: String, accountType: String): Boolean
-  suspend fun clearCredentials(account: AccountData): Boolean
-  suspend fun getAuthToken(account: AccountData, tokenType: String): AuthTokenResult
-  suspend fun setAuthToken(account: AccountData, tokenType: String, token: String): Boolean
-  suspend fun invalidateAuthToken(accountType: String, token: String): Boolean
-  suspend fun invalidateAllTokens(account: AccountData, tokenType: String): Boolean
-  suspend fun getAvailableTokenTypes(account: AccountData): List<String>
-  suspend fun openAccountSettings(): Boolean
-  suspend fun isConfigured(): Boolean
-  suspend fun getPlatformCapabilities(): Map<String, Boolean>
+  fun addAccount(account: AccountData, password: String, callback: (Result<Boolean>) -> Unit)
+  fun getAccounts(accountType: String, callback: (Result<List<AccountData>>) -> Unit)
+  fun getAccount(username: String, accountType: String, callback: (Result<AccountData?>) -> Unit)
+  fun updateAccount(account: AccountData, callback: (Result<Boolean>) -> Unit)
+  fun removeAccount(account: AccountData, callback: (Result<Boolean>) -> Unit)
+  fun accountExists(username: String, accountType: String, callback: (Result<Boolean>) -> Unit)
+  fun updateCredentials(account: AccountData, newPassword: String, callback: (Result<Boolean>) -> Unit)
+  fun validateCredentials(username: String, password: String, accountType: String, callback: (Result<Boolean>) -> Unit)
+  fun clearCredentials(account: AccountData, callback: (Result<Boolean>) -> Unit)
+  fun getAuthToken(account: AccountData, tokenType: String, callback: (Result<AuthTokenResult>) -> Unit)
+  fun setAuthToken(account: AccountData, tokenType: String, token: String, callback: (Result<Boolean>) -> Unit)
+  fun invalidateAuthToken(accountType: String, token: String, callback: (Result<Boolean>) -> Unit)
+  fun invalidateAllTokens(account: AccountData, tokenType: String, callback: (Result<Boolean>) -> Unit)
+  fun getAvailableTokenTypes(account: AccountData, callback: (Result<List<String>>) -> Unit)
+  fun openAccountSettings(callback: (Result<Boolean>) -> Unit)
+  fun isConfigured(callback: (Result<Boolean>) -> Unit)
+  fun getPlatformCapabilities(callback: (Result<Map<String, Boolean>>) -> Unit)
 
   companion object {
     /** The codec used by AccountManagerHostApi. */
@@ -374,13 +374,14 @@ interface AccountManagerHostApi {
             val args = message as List<Any?>
             val accountArg = args[0] as AccountData
             val passwordArg = args[1] as String
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.addAccount(accountArg, passwordArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.addAccount(accountArg, passwordArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -393,13 +394,14 @@ interface AccountManagerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val accountTypeArg = args[0] as String
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.getAccounts(accountTypeArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.getAccounts(accountTypeArg) { result: Result<List<AccountData>> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -413,13 +415,14 @@ interface AccountManagerHostApi {
             val args = message as List<Any?>
             val usernameArg = args[0] as String
             val accountTypeArg = args[1] as String
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.getAccount(usernameArg, accountTypeArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.getAccount(usernameArg, accountTypeArg) { result: Result<AccountData?> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -432,13 +435,14 @@ interface AccountManagerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val accountArg = args[0] as AccountData
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.updateAccount(accountArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.updateAccount(accountArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -451,13 +455,14 @@ interface AccountManagerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val accountArg = args[0] as AccountData
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.removeAccount(accountArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.removeAccount(accountArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -471,13 +476,14 @@ interface AccountManagerHostApi {
             val args = message as List<Any?>
             val usernameArg = args[0] as String
             val accountTypeArg = args[1] as String
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.accountExists(usernameArg, accountTypeArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.accountExists(usernameArg, accountTypeArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -491,13 +497,14 @@ interface AccountManagerHostApi {
             val args = message as List<Any?>
             val accountArg = args[0] as AccountData
             val newPasswordArg = args[1] as String
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.updateCredentials(accountArg, newPasswordArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.updateCredentials(accountArg, newPasswordArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -512,13 +519,14 @@ interface AccountManagerHostApi {
             val usernameArg = args[0] as String
             val passwordArg = args[1] as String
             val accountTypeArg = args[2] as String
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.validateCredentials(usernameArg, passwordArg, accountTypeArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.validateCredentials(usernameArg, passwordArg, accountTypeArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -531,13 +539,14 @@ interface AccountManagerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val accountArg = args[0] as AccountData
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.clearCredentials(accountArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.clearCredentials(accountArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -551,13 +560,14 @@ interface AccountManagerHostApi {
             val args = message as List<Any?>
             val accountArg = args[0] as AccountData
             val tokenTypeArg = args[1] as String
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.getAuthToken(accountArg, tokenTypeArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.getAuthToken(accountArg, tokenTypeArg) { result: Result<AuthTokenResult> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -572,13 +582,14 @@ interface AccountManagerHostApi {
             val accountArg = args[0] as AccountData
             val tokenTypeArg = args[1] as String
             val tokenArg = args[2] as String
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.setAuthToken(accountArg, tokenTypeArg, tokenArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.setAuthToken(accountArg, tokenTypeArg, tokenArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -592,13 +603,14 @@ interface AccountManagerHostApi {
             val args = message as List<Any?>
             val accountTypeArg = args[0] as String
             val tokenArg = args[1] as String
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.invalidateAuthToken(accountTypeArg, tokenArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.invalidateAuthToken(accountTypeArg, tokenArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -612,13 +624,14 @@ interface AccountManagerHostApi {
             val args = message as List<Any?>
             val accountArg = args[0] as AccountData
             val tokenTypeArg = args[1] as String
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.invalidateAllTokens(accountArg, tokenTypeArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.invalidateAllTokens(accountArg, tokenTypeArg) { result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -631,13 +644,14 @@ interface AccountManagerHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val accountArg = args[0] as AccountData
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.getAvailableTokenTypes(accountArg))
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.getAvailableTokenTypes(accountArg) { result: Result<List<String>> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -648,13 +662,14 @@ interface AccountManagerHostApi {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.openAccountSettings$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.openAccountSettings())
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.openAccountSettings{ result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -665,13 +680,14 @@ interface AccountManagerHostApi {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.isConfigured$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.isConfigured())
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.isConfigured{ result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
@@ -682,13 +698,14 @@ interface AccountManagerHostApi {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getPlatformCapabilities$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                listOf(api.getPlatformCapabilities())
-              } catch (exception: Throwable) {
-                AccountManagerApiPigeonUtils.wrapError(exception)
+            api.getPlatformCapabilities{ result: Result<Map<String, Boolean>> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
-              reply.reply(wrapped)
             }
           }
         } else {
