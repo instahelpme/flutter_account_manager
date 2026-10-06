@@ -31,7 +31,7 @@ class AccountStore {
             username: account.username,
             accountType: account.accountType,
             displayName: account.displayName,
-            userData: account.userData?.compactMapValues { $0 },
+            userData: compactStringDict(account.userData),
             createdAt: all[key]?.createdAt ?? Date(),
             updatedAt: Date(),
             syncEnabled: true
@@ -57,7 +57,7 @@ class AccountStore {
         let key = accountKey(username: account.username, accountType: account.accountType)
         guard var stored = all[key] else { return }
         stored.displayName = account.displayName
-        stored.userData = account.userData?.compactMapValues { $0 }
+        stored.userData = compactStringDict(account.userData)
         stored.updatedAt = Date()
         all[key] = stored
         try persist(all)
@@ -76,6 +76,19 @@ class AccountStore {
     }
 
     // MARK: - Private
+
+    /// Converts a Pigeon-generated `[String?: String?]?` dictionary (which uses optional
+    /// keys and optional values) into a plain `[String: String]?`, dropping any entries
+    /// where the key or value is nil.
+    private func compactStringDict(_ dict: [String?: String?]?) -> [String: String]? {
+        guard let dict = dict else { return nil }
+        let result = dict.reduce(into: [String: String]()) { acc, pair in
+            if let key = pair.key, let value = pair.value {
+                acc[key] = value
+            }
+        }
+        return result.isEmpty ? nil : result
+    }
 
     private func accountKey(username: String, accountType: String) -> String {
         "\(accountType):\(username)"
@@ -99,7 +112,9 @@ class AccountStore {
             username: stored.username,
             accountType: stored.accountType,
             displayName: stored.displayName,
-            userData: stored.userData
+            userData: stored.userData.map { dict in
+                Dictionary(uniqueKeysWithValues: dict.map { (Optional($0.key), Optional($0.value)) })
+            }
         )
     }
 }

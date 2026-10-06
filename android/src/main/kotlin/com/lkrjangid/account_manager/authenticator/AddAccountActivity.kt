@@ -180,13 +180,6 @@ class AddAccountActivity : AccountAuthenticatorActivity() {
         val added = accountManager.addAccountExplicitly(account, password, null)
 
         if (added) {
-            // Enable sync by default
-            ContentResolver.setSyncAutomatically(
-                account,
-                "$accountType.provider",
-                true,
-            )
-
             // Return success to Settings — this is what makes the account appear
             val result = Bundle().apply {
                 putString(AccountManager.KEY_ACCOUNT_NAME, username)

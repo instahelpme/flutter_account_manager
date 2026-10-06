@@ -6,8 +6,6 @@ class AccountManagerHostApiImpl: AccountManagerHostApi {
 
     private let keychainManager = KeychainManager.shared
     private let accountStore = AccountStore.shared
-    private let backgroundSyncManager = BackgroundSyncManager.shared
-    private let syncEngine = SyncEngine()
 
     // MARK: - Account Operations
 
@@ -198,59 +196,6 @@ class AccountManagerHostApiImpl: AccountManagerHostApi {
         completion(.success([]))
     }
 
-    // MARK: - Sync Operations
-
-    func syncNow(account: AccountData, expedited: Bool, completion: @escaping (Result<SyncResultData, Error>) -> Void) {
-        Task {
-            do {
-                let result = try await syncEngine.performSync(account: account, expedited: expedited)
-                await MainActor.run { completion(.success(result)) }
-            } catch {
-                await MainActor.run {
-                    completion(.success(SyncResultData(
-                        success: false,
-                        errorCode: -1,
-                        errorMessage: error.localizedDescription,
-                        stats: nil
-                    )))
-                }
-            }
-        }
-    }
-
-    func setSyncAutomatically(account: AccountData, enabled: Bool, completion: @escaping (Result<Bool, Error>) -> Void) {
-        UserDefaults.standard.set(enabled, forKey: "sync_auto_\(account.accountType):\(account.username)")
-        completion(.success(true))
-    }
-
-    func isSyncAutomatically(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void) {
-        let key = "sync_auto_\(account.accountType):\(account.username)"
-        let enabled = UserDefaults.standard.object(forKey: key) as? Bool ?? true
-        completion(.success(enabled))
-    }
-
-    func addPeriodicSync(account: AccountData, config: PeriodicSyncConfig, completion: @escaping (Result<Bool, Error>) -> Void) {
-        do {
-            try backgroundSyncManager.schedulePeriodicSync(account: account, config: config)
-            completion(.success(true))
-        } catch {
-            completion(.failure(error))
-        }
-    }
-
-    func removePeriodicSync(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void) {
-        backgroundSyncManager.cancelPeriodicSync()
-        completion(.success(true))
-    }
-
-    func getSyncStatus(account: AccountData, completion: @escaping (Result<SyncStatus, Error>) -> Void) {
-        completion(.success(.idle))
-    }
-
-    func cancelSync(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void) {
-        syncEngine.cancelCurrentSync()
-        completion(.success(true))
-    }
 
     // MARK: - Platform-Specific
 
