@@ -175,7 +175,6 @@ class AccountManagerPlugin {
 // Internal FlutterApi implementations
 // ---------------------------------------------------------------------------
 
-
 class _AccountCallbackHandler implements AccountCallbackFlutterApi {
   _AccountCallbackHandler(this._controller);
 

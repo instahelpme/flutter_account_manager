@@ -93,14 +93,15 @@ void main() {
       expect(token, equals('jwt_abc123'));
     });
 
-    test('getAuthToken throws AuthenticationRequiredException when interaction required',
+    test(
+        'getAuthToken throws AuthenticationRequiredException when interaction required',
         () async {
-      when(mockHostApi.getAuthToken(any, any)).thenAnswer((_) async =>
-          AuthTokenResult(
-            token: null,
-            errorMessage: 'Re-auth required',
-            requiresUserInteraction: true,
-          ));
+      when(mockHostApi.getAuthToken(any, any))
+          .thenAnswer((_) async => AuthTokenResult(
+                token: null,
+                errorMessage: 'Re-auth required',
+                requiresUserInteraction: true,
+              ));
 
       expect(
         () => plugin.getAuthToken(testAccount, 'api'),
@@ -126,15 +127,16 @@ void main() {
     );
 
     test('syncNow returns SyncResult on success', () async {
-      when(mockHostApi.syncNow(any, any)).thenAnswer((_) async => SyncResultData(
-            success: true,
-            stats: SyncStatsData(
-              itemsUploaded: 5,
-              itemsDownloaded: 10,
-              conflicts: 0,
-              syncTimeMs: 1500,
-            ),
-          ));
+      when(mockHostApi.syncNow(any, any))
+          .thenAnswer((_) async => SyncResultData(
+                success: true,
+                stats: SyncStatsData(
+                  itemsUploaded: 5,
+                  itemsDownloaded: 10,
+                  conflicts: 0,
+                  syncTimeMs: 1500,
+                ),
+              ));
 
       final result = await plugin.syncNow(testAccount);
 
@@ -161,19 +163,16 @@ void main() {
     });
 
     test('addPeriodicSync throws ArgumentError for interval < 15 minutes', () {
-      when(mockHostApi.addPeriodicSync(any, any))
-          .thenAnswer((_) async => true);
+      when(mockHostApi.addPeriodicSync(any, any)).thenAnswer((_) async => true);
 
       expect(
-        () => plugin.addPeriodicSync(
-            testAccount, const Duration(minutes: 5)),
+        () => plugin.addPeriodicSync(testAccount, const Duration(minutes: 5)),
         throwsArgumentError,
       );
     });
 
     test('addPeriodicSync succeeds for interval >= 15 minutes', () async {
-      when(mockHostApi.addPeriodicSync(any, any))
-          .thenAnswer((_) async => true);
+      when(mockHostApi.addPeriodicSync(any, any)).thenAnswer((_) async => true);
 
       final result = await plugin.addPeriodicSync(
         testAccount,
