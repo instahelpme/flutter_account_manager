@@ -1,6 +1,6 @@
+import '../../src/generated/account_manager_api.g.dart';
 import 'account.dart';
 import 'sync_result.dart';
-import '../../src/generated/account_manager_api.g.dart';
 
 /// Base class for sync-related events emitted by [AccountManagerPlugin.syncEvents].
 sealed class SyncEvent {
