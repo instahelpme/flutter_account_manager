@@ -10,7 +10,8 @@ import 'package:pigeon/pigeon.dart';
   kotlinOptions: KotlinOptions(
     package: 'com.lkrjangid.account_manager',
   ),
-  swiftOut: 'ios/Classes/AccountManagerApi.g.swift',
+  swiftOut:
+      'ios/flutter_account_manager/Sources/flutter_account_manager/AccountManagerApi.g.swift',
   swiftOptions: SwiftOptions(),
 ))
 

@@ -16,6 +16,8 @@
   `pushNotificationSync: false` on iOS.
 * iOS: `updateAccount` / `addAccount` with an empty `userData` map now store an empty map
   instead of `null`, matching Android.
+* iOS: adds Swift Package Manager support. Sources moved to
+  `ios/flutter_account_manager/Sources/flutter_account_manager`; CocoaPods remains supported.
 * Migrates Android build to built-in Kotlin (AGP 9+ compatibility).
 * Applies the `kotlin-android` plugin when AGP < 9 or when the host app sets
   `android.builtInKotlin=false`, to support Flutter versions earlier than 3.44.

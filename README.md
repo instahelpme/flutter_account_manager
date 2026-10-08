@@ -585,7 +585,7 @@ dart run pigeon --input pigeons/account_manager.dart
 This regenerates:
 - `lib/src/generated/account_manager_api.g.dart`
 - `android/src/main/kotlin/com/lkrjangid/account_manager/AccountManagerApi.g.kt`
-- `ios/Classes/AccountManagerApi.g.swift`
+- `ios/flutter_account_manager/Sources/flutter_account_manager/AccountManagerApi.g.swift`
 
 After changing method signatures, regenerate mockito mocks:
 
