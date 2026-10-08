@@ -3,12 +3,14 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+
 import 'dart:async' as _i4;
+
+import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i3;
 
 import 'package:flutter_account_manager/src/generated/account_manager_api.g.dart'
     as _i2;
-import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -27,17 +29,6 @@ import 'package:mockito/src/dummies.dart' as _i3;
 class _FakeAuthTokenResult_0 extends _i1.SmartFake
     implements _i2.AuthTokenResult {
   _FakeAuthTokenResult_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeSyncResultData_1 extends _i1.SmartFake
-    implements _i2.SyncResultData {
-  _FakeSyncResultData_1(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -272,102 +263,6 @@ class MockAccountManagerHostApi extends _i1.Mock
         ),
         returnValue: _i4.Future<List<String>>.value(<String>[]),
       ) as _i4.Future<List<String>>);
-
-  @override
-  _i4.Future<_i2.SyncResultData> syncNow(
-    _i2.AccountData? account,
-    bool? expedited,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #syncNow,
-          [
-            account,
-            expedited,
-          ],
-        ),
-        returnValue: _i4.Future<_i2.SyncResultData>.value(_FakeSyncResultData_1(
-          this,
-          Invocation.method(
-            #syncNow,
-            [
-              account,
-              expedited,
-            ],
-          ),
-        )),
-      ) as _i4.Future<_i2.SyncResultData>);
-
-  @override
-  _i4.Future<bool> setSyncAutomatically(
-    _i2.AccountData? account,
-    bool? enabled,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #setSyncAutomatically,
-          [
-            account,
-            enabled,
-          ],
-        ),
-        returnValue: _i4.Future<bool>.value(false),
-      ) as _i4.Future<bool>);
-
-  @override
-  _i4.Future<bool> isSyncAutomatically(_i2.AccountData? account) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #isSyncAutomatically,
-          [account],
-        ),
-        returnValue: _i4.Future<bool>.value(false),
-      ) as _i4.Future<bool>);
-
-  @override
-  _i4.Future<bool> addPeriodicSync(
-    _i2.AccountData? account,
-    _i2.PeriodicSyncConfig? config,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #addPeriodicSync,
-          [
-            account,
-            config,
-          ],
-        ),
-        returnValue: _i4.Future<bool>.value(false),
-      ) as _i4.Future<bool>);
-
-  @override
-  _i4.Future<bool> removePeriodicSync(_i2.AccountData? account) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #removePeriodicSync,
-          [account],
-        ),
-        returnValue: _i4.Future<bool>.value(false),
-      ) as _i4.Future<bool>);
-
-  @override
-  _i4.Future<_i2.SyncStatus> getSyncStatus(_i2.AccountData? account) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getSyncStatus,
-          [account],
-        ),
-        returnValue: _i4.Future<_i2.SyncStatus>.value(_i2.SyncStatus.idle),
-      ) as _i4.Future<_i2.SyncStatus>);
-
-  @override
-  _i4.Future<bool> cancelSync(_i2.AccountData? account) => (super.noSuchMethod(
-        Invocation.method(
-          #cancelSync,
-          [account],
-        ),
-        returnValue: _i4.Future<bool>.value(false),
-      ) as _i4.Future<bool>);
 
   @override
   _i4.Future<bool> openAccountSettings() => (super.noSuchMethod(
