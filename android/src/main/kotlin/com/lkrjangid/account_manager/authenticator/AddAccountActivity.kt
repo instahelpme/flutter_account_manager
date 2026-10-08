@@ -3,7 +3,6 @@ package com.lkrjangid.account_manager.authenticator
 import android.accounts.Account
 import android.accounts.AccountAuthenticatorActivity
 import android.accounts.AccountManager
-import android.content.ContentResolver
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
@@ -180,13 +179,6 @@ class AddAccountActivity : AccountAuthenticatorActivity() {
         val added = accountManager.addAccountExplicitly(account, password, null)
 
         if (added) {
-            // Enable sync by default
-            ContentResolver.setSyncAutomatically(
-                account,
-                "$accountType.provider",
-                true,
-            )
-
             // Return success to Settings — this is what makes the account appear
             val result = Bundle().apply {
                 putString(AccountManager.KEY_ACCOUNT_NAME, username)

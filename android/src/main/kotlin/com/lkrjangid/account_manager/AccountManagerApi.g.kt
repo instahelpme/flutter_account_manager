@@ -49,20 +49,6 @@ class FlutterError (
   val details: Any? = null
 ) : Throwable()
 
-/** Current sync status */
-enum class SyncStatus(val raw: Int) {
-  IDLE(0),
-  PENDING(1),
-  ACTIVE(2),
-  FAILED(3);
-
-  companion object {
-    fun ofRaw(raw: Int): SyncStatus? {
-      return values().firstOrNull { it.raw == raw }
-    }
-  }
-}
-
 /**
  * Represents a user account with associated metadata
  *
@@ -90,102 +76,6 @@ data class AccountData (
       accountType,
       displayName,
       userData,
-    )
-  }
-}
-
-/**
- * Statistics from a completed sync operation
- *
- * Generated class from Pigeon that represents data sent in messages.
- */
-data class SyncStatsData (
-  val itemsUploaded: Long,
-  val itemsDownloaded: Long,
-  val conflicts: Long,
-  val syncTimeMs: Long
-)
- {
-  companion object {
-    fun fromList(pigeonVar_list: List<Any?>): SyncStatsData {
-      val itemsUploaded = pigeonVar_list[0] as Long
-      val itemsDownloaded = pigeonVar_list[1] as Long
-      val conflicts = pigeonVar_list[2] as Long
-      val syncTimeMs = pigeonVar_list[3] as Long
-      return SyncStatsData(itemsUploaded, itemsDownloaded, conflicts, syncTimeMs)
-    }
-  }
-  fun toList(): List<Any?> {
-    return listOf(
-      itemsUploaded,
-      itemsDownloaded,
-      conflicts,
-      syncTimeMs,
-    )
-  }
-}
-
-/**
- * Result of a sync operation with statistics
- *
- * Generated class from Pigeon that represents data sent in messages.
- */
-data class SyncResultData (
-  val success: Boolean,
-  val errorCode: Long? = null,
-  val errorMessage: String? = null,
-  val stats: SyncStatsData? = null
-)
- {
-  companion object {
-    fun fromList(pigeonVar_list: List<Any?>): SyncResultData {
-      val success = pigeonVar_list[0] as Boolean
-      val errorCode = pigeonVar_list[1] as Long?
-      val errorMessage = pigeonVar_list[2] as String?
-      val stats = pigeonVar_list[3] as SyncStatsData?
-      return SyncResultData(success, errorCode, errorMessage, stats)
-    }
-  }
-  fun toList(): List<Any?> {
-    return listOf(
-      success,
-      errorCode,
-      errorMessage,
-      stats,
-    )
-  }
-}
-
-/**
- * Configuration for periodic sync scheduling
- *
- * Generated class from Pigeon that represents data sent in messages.
- */
-data class PeriodicSyncConfig (
-  val intervalSeconds: Long,
-  val flexSeconds: Long? = null,
-  val requiresNetwork: Boolean? = null,
-  val requiresCharging: Boolean? = null,
-  val extras: Map<String?, String?>? = null
-)
- {
-  companion object {
-    fun fromList(pigeonVar_list: List<Any?>): PeriodicSyncConfig {
-      val intervalSeconds = pigeonVar_list[0] as Long
-      val flexSeconds = pigeonVar_list[1] as Long?
-      val requiresNetwork = pigeonVar_list[2] as Boolean?
-      val requiresCharging = pigeonVar_list[3] as Boolean?
-      val extras = pigeonVar_list[4] as Map<String?, String?>?
-      return PeriodicSyncConfig(intervalSeconds, flexSeconds, requiresNetwork, requiresCharging, extras)
-    }
-  }
-  fun toList(): List<Any?> {
-    return listOf(
-      intervalSeconds,
-      flexSeconds,
-      requiresNetwork,
-      requiresCharging,
-      extras,
     )
   }
 }
@@ -220,70 +110,17 @@ data class AuthTokenResult (
     )
   }
 }
-
-/**
- * Sync progress update
- *
- * Generated class from Pigeon that represents data sent in messages.
- */
-data class SyncProgressData (
-  val phase: String,
-  val progress: Double,
-  val message: String? = null
-)
- {
-  companion object {
-    fun fromList(pigeonVar_list: List<Any?>): SyncProgressData {
-      val phase = pigeonVar_list[0] as String
-      val progress = pigeonVar_list[1] as Double
-      val message = pigeonVar_list[2] as String?
-      return SyncProgressData(phase, progress, message)
-    }
-  }
-  fun toList(): List<Any?> {
-    return listOf(
-      phase,
-      progress,
-      message,
-    )
-  }
-}
 private open class AccountManagerApiPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
       129.toByte() -> {
-        return (readValue(buffer) as Long?)?.let {
-          SyncStatus.ofRaw(it.toInt())
-        }
-      }
-      130.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           AccountData.fromList(it)
         }
       }
-      131.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          SyncStatsData.fromList(it)
-        }
-      }
-      132.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          SyncResultData.fromList(it)
-        }
-      }
-      133.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          PeriodicSyncConfig.fromList(it)
-        }
-      }
-      134.toByte() -> {
+      130.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           AuthTokenResult.fromList(it)
-        }
-      }
-      135.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          SyncProgressData.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -291,32 +128,12 @@ private open class AccountManagerApiPigeonCodec : StandardMessageCodec() {
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is SyncStatus -> {
-        stream.write(129)
-        writeValue(stream, value.raw)
-      }
       is AccountData -> {
-        stream.write(130)
-        writeValue(stream, value.toList())
-      }
-      is SyncStatsData -> {
-        stream.write(131)
-        writeValue(stream, value.toList())
-      }
-      is SyncResultData -> {
-        stream.write(132)
-        writeValue(stream, value.toList())
-      }
-      is PeriodicSyncConfig -> {
-        stream.write(133)
+        stream.write(129)
         writeValue(stream, value.toList())
       }
       is AuthTokenResult -> {
-        stream.write(134)
-        writeValue(stream, value.toList())
-      }
-      is SyncProgressData -> {
-        stream.write(135)
+        stream.write(130)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -341,13 +158,6 @@ interface AccountManagerHostApi {
   fun invalidateAuthToken(accountType: String, token: String, callback: (Result<Boolean>) -> Unit)
   fun invalidateAllTokens(account: AccountData, tokenType: String, callback: (Result<Boolean>) -> Unit)
   fun getAvailableTokenTypes(account: AccountData, callback: (Result<List<String>>) -> Unit)
-  fun syncNow(account: AccountData, expedited: Boolean, callback: (Result<SyncResultData>) -> Unit)
-  fun setSyncAutomatically(account: AccountData, enabled: Boolean, callback: (Result<Boolean>) -> Unit)
-  fun isSyncAutomatically(account: AccountData, callback: (Result<Boolean>) -> Unit)
-  fun addPeriodicSync(account: AccountData, config: PeriodicSyncConfig, callback: (Result<Boolean>) -> Unit)
-  fun removePeriodicSync(account: AccountData, callback: (Result<Boolean>) -> Unit)
-  fun getSyncStatus(account: AccountData, callback: (Result<SyncStatus>) -> Unit)
-  fun cancelSync(account: AccountData, callback: (Result<Boolean>) -> Unit)
   fun openAccountSettings(callback: (Result<Boolean>) -> Unit)
   fun isConfigured(callback: (Result<Boolean>) -> Unit)
   fun getPlatformCapabilities(callback: (Result<Map<String, Boolean>>) -> Unit)
@@ -362,7 +172,7 @@ interface AccountManagerHostApi {
     fun setUp(binaryMessenger: BinaryMessenger, api: AccountManagerHostApi?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.addAccount$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.addAccount$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -383,7 +193,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getAccounts$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAccounts$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -403,7 +213,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getAccount$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAccount$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -424,7 +234,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.updateAccount$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.updateAccount$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -444,7 +254,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.removeAccount$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.removeAccount$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -464,7 +274,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.accountExists$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.accountExists$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -485,7 +295,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.updateCredentials$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.updateCredentials$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -506,7 +316,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.validateCredentials$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.validateCredentials$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -528,7 +338,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.clearCredentials$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.clearCredentials$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -548,7 +358,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getAuthToken$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAuthToken$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -569,7 +379,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.setAuthToken$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.setAuthToken$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -591,7 +401,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.invalidateAuthToken$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.invalidateAuthToken$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -612,7 +422,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.invalidateAllTokens$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.invalidateAllTokens$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -633,7 +443,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getAvailableTokenTypes$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getAvailableTokenTypes$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -653,150 +463,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.syncNow$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { message, reply ->
-            val args = message as List<Any?>
-            val accountArg = args[0] as AccountData
-            val expeditedArg = args[1] as Boolean
-            api.syncNow(accountArg, expeditedArg) { result: Result<SyncResultData> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                val data = result.getOrNull()
-                reply.reply(wrapResult(data))
-              }
-            }
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.setSyncAutomatically$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { message, reply ->
-            val args = message as List<Any?>
-            val accountArg = args[0] as AccountData
-            val enabledArg = args[1] as Boolean
-            api.setSyncAutomatically(accountArg, enabledArg) { result: Result<Boolean> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                val data = result.getOrNull()
-                reply.reply(wrapResult(data))
-              }
-            }
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.isSyncAutomatically$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { message, reply ->
-            val args = message as List<Any?>
-            val accountArg = args[0] as AccountData
-            api.isSyncAutomatically(accountArg) { result: Result<Boolean> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                val data = result.getOrNull()
-                reply.reply(wrapResult(data))
-              }
-            }
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.addPeriodicSync$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { message, reply ->
-            val args = message as List<Any?>
-            val accountArg = args[0] as AccountData
-            val configArg = args[1] as PeriodicSyncConfig
-            api.addPeriodicSync(accountArg, configArg) { result: Result<Boolean> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                val data = result.getOrNull()
-                reply.reply(wrapResult(data))
-              }
-            }
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.removePeriodicSync$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { message, reply ->
-            val args = message as List<Any?>
-            val accountArg = args[0] as AccountData
-            api.removePeriodicSync(accountArg) { result: Result<Boolean> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                val data = result.getOrNull()
-                reply.reply(wrapResult(data))
-              }
-            }
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getSyncStatus$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { message, reply ->
-            val args = message as List<Any?>
-            val accountArg = args[0] as AccountData
-            api.getSyncStatus(accountArg) { result: Result<SyncStatus> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                val data = result.getOrNull()
-                reply.reply(wrapResult(data))
-              }
-            }
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.cancelSync$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { message, reply ->
-            val args = message as List<Any?>
-            val accountArg = args[0] as AccountData
-            api.cancelSync(accountArg) { result: Result<Boolean> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                val data = result.getOrNull()
-                reply.reply(wrapResult(data))
-              }
-            }
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.openAccountSettings$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.openAccountSettings$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.openAccountSettings{ result: Result<Boolean> ->
@@ -814,7 +481,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.isConfigured$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.isConfigured$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.isConfigured{ result: Result<Boolean> ->
@@ -832,7 +499,7 @@ interface AccountManagerHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.account_manager.AccountManagerHostApi.getPlatformCapabilities$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getPlatformCapabilities$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.getPlatformCapabilities{ result: Result<Map<String, Boolean>> ->
@@ -853,100 +520,6 @@ interface AccountManagerHostApi {
   }
 }
 /** Generated class from Pigeon that represents Flutter messages that can be called from Kotlin. */
-class SyncCallbackFlutterApi(private val binaryMessenger: BinaryMessenger, private val messageChannelSuffix: String = "") {
-  companion object {
-    /** The codec used by SyncCallbackFlutterApi. */
-    val codec: MessageCodec<Any?> by lazy {
-      AccountManagerApiPigeonCodec()
-    }
-  }
-  fun onSyncStarted(accountArg: AccountData, callback: (Result<Unit>) -> Unit)
-{
-    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.account_manager.SyncCallbackFlutterApi.onSyncStarted$separatedMessageChannelSuffix"
-    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(accountArg)) {
-      if (it is List<*>) {
-        if (it.size > 1) {
-          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
-        } else {
-          callback(Result.success(Unit))
-        }
-      } else {
-        callback(Result.failure(createConnectionError(channelName)))
-      } 
-    }
-  }
-  fun onSyncProgress(accountArg: AccountData, progressArg: SyncProgressData, callback: (Result<Unit>) -> Unit)
-{
-    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.account_manager.SyncCallbackFlutterApi.onSyncProgress$separatedMessageChannelSuffix"
-    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(accountArg, progressArg)) {
-      if (it is List<*>) {
-        if (it.size > 1) {
-          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
-        } else {
-          callback(Result.success(Unit))
-        }
-      } else {
-        callback(Result.failure(createConnectionError(channelName)))
-      } 
-    }
-  }
-  fun onSyncCompleted(accountArg: AccountData, resultArg: SyncResultData, callback: (Result<Unit>) -> Unit)
-{
-    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.account_manager.SyncCallbackFlutterApi.onSyncCompleted$separatedMessageChannelSuffix"
-    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(accountArg, resultArg)) {
-      if (it is List<*>) {
-        if (it.size > 1) {
-          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
-        } else {
-          callback(Result.success(Unit))
-        }
-      } else {
-        callback(Result.failure(createConnectionError(channelName)))
-      } 
-    }
-  }
-  fun onSyncCancelled(accountArg: AccountData, callback: (Result<Unit>) -> Unit)
-{
-    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.account_manager.SyncCallbackFlutterApi.onSyncCancelled$separatedMessageChannelSuffix"
-    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(accountArg)) {
-      if (it is List<*>) {
-        if (it.size > 1) {
-          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
-        } else {
-          callback(Result.success(Unit))
-        }
-      } else {
-        callback(Result.failure(createConnectionError(channelName)))
-      } 
-    }
-  }
-  fun onSyncConflict(accountArg: AccountData, conflictIdArg: String, localDataArg: String, remoteDataArg: String, callback: (Result<Unit>) -> Unit)
-{
-    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.account_manager.SyncCallbackFlutterApi.onSyncConflict$separatedMessageChannelSuffix"
-    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(accountArg, conflictIdArg, localDataArg, remoteDataArg)) {
-      if (it is List<*>) {
-        if (it.size > 1) {
-          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
-        } else {
-          callback(Result.success(Unit))
-        }
-      } else {
-        callback(Result.failure(createConnectionError(channelName)))
-      } 
-    }
-  }
-}
-/** Generated class from Pigeon that represents Flutter messages that can be called from Kotlin. */
 class AccountCallbackFlutterApi(private val binaryMessenger: BinaryMessenger, private val messageChannelSuffix: String = "") {
   companion object {
     /** The codec used by AccountCallbackFlutterApi. */
@@ -957,7 +530,7 @@ class AccountCallbackFlutterApi(private val binaryMessenger: BinaryMessenger, pr
   fun onAccountAdded(accountArg: AccountData, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.account_manager.AccountCallbackFlutterApi.onAccountAdded$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountAdded$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(accountArg)) {
       if (it is List<*>) {
@@ -974,7 +547,7 @@ class AccountCallbackFlutterApi(private val binaryMessenger: BinaryMessenger, pr
   fun onAccountRemoved(accountArg: AccountData, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.account_manager.AccountCallbackFlutterApi.onAccountRemoved$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountRemoved$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(accountArg)) {
       if (it is List<*>) {
@@ -991,7 +564,7 @@ class AccountCallbackFlutterApi(private val binaryMessenger: BinaryMessenger, pr
   fun onAccountUpdated(accountArg: AccountData, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.account_manager.AccountCallbackFlutterApi.onAccountUpdated$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAccountUpdated$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(accountArg)) {
       if (it is List<*>) {
@@ -1008,7 +581,7 @@ class AccountCallbackFlutterApi(private val binaryMessenger: BinaryMessenger, pr
   fun onAuthTokenExpired(accountArg: AccountData, tokenTypeArg: String, callback: (Result<Unit>) -> Unit)
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.account_manager.AccountCallbackFlutterApi.onAuthTokenExpired$separatedMessageChannelSuffix"
+    val channelName = "dev.flutter.pigeon.flutter_account_manager.AccountCallbackFlutterApi.onAuthTokenExpired$separatedMessageChannelSuffix"
     val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
     channel.send(listOf(accountArg, tokenTypeArg)) {
       if (it is List<*>) {

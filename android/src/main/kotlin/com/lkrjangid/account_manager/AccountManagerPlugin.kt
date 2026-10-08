@@ -1,7 +1,6 @@
 package com.lkrjangid.account_manager
 
 import android.content.Context
-import com.lkrjangid.account_manager.sync.SyncManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 
@@ -15,8 +14,7 @@ class AccountManagerPlugin : FlutterPlugin {
     }
 
     private fun setup(messenger: BinaryMessenger, context: Context) {
-        val syncManager = SyncManager(context)
-        val impl = AccountManagerHostApiImpl(context, syncManager)
+        val impl = AccountManagerHostApiImpl(context)
         hostApiImpl = impl
         AccountManagerHostApi.setUp(messenger, impl)
     }

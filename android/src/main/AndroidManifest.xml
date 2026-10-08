@@ -3,8 +3,6 @@
 
     <!-- ── Permissions ───────────────────────────────────────────────────── -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <!--
         AUTHENTICATE_ACCOUNTS / MANAGE_ACCOUNTS are deprecated since API 22
         but still required for the authenticator binding on older devices.
@@ -19,11 +17,6 @@
         by this authenticator, so no extra runtime permission is needed for that.
     -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <!--
-        READ_SYNC_STATS is required by ContentResolver.isSyncActive() and
-        isSyncPending() on API 26+. Without it those calls throw SecurityException.
-    -->
-    <uses-permission android:name="android.permission.READ_SYNC_STATS" />
 
     <application>
 
@@ -58,36 +51,6 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
-
-        <!--
-            SyncService
-            ═══════════
-            Bound by SyncManager framework to reach our SyncAdapter.
-            Runs in :sync process to keep it alive independently.
-        -->
-        <service
-            android:name=".sync.SyncService"
-            android:exported="true"
-            android:process=":sync">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter" />
-        </service>
-
-        <!--
-            AppContentProvider
-            ══════════════════
-            Required by SyncAdapter — Android needs a ContentProvider for every
-            sync authority. android:syncable="true" marks it as sync-capable.
-        -->
-        <provider
-            android:name=".provider.AppContentProvider"
-            android:authorities="com.lkrjangid.account_manager.provider"
-            android:exported="false"
-            android:syncable="true" />
 
     </application>
 

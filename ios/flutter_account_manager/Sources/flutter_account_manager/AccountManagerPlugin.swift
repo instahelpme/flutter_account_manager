@@ -8,8 +8,5 @@ public class AccountManagerPlugin: NSObject, FlutterPlugin {
         let messenger = registrar.messenger()
         let impl = AccountManagerHostApiImpl()
         AccountManagerHostApiSetup.setUp(binaryMessenger: messenger, api: impl)
-
-        // Register background tasks on app launch
-        BackgroundSyncManager.shared.registerBackgroundTasks()
     }
 }

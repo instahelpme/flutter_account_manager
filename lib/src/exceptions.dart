@@ -38,29 +38,6 @@ class AuthenticationRequiredException extends AccountManagerException {
   });
 }
 
-/// Network failure during sync. Code range: 1200–1299.
-class SyncNetworkException extends AccountManagerException {
-  const SyncNetworkException({
-    required super.message,
-    super.errorCode = 1200,
-  });
-}
-
-/// Sync conflict that could not be auto-resolved. Code range: 1200–1299.
-class SyncConflictException extends AccountManagerException {
-  const SyncConflictException({
-    required super.message,
-    required this.conflictId,
-    required this.localData,
-    required this.remoteData,
-    super.errorCode = 1201,
-  });
-
-  final String conflictId;
-  final String localData;
-  final String remoteData;
-}
-
 /// Plugin is not properly configured (missing manifest/plist entries). Code range: 1500–1599.
 class PluginNotConfiguredException extends AccountManagerException {
   const PluginNotConfiguredException({

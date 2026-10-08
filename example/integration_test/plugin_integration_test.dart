@@ -17,7 +17,7 @@ void main() {
   });
 
   group('End-to-end Account Flow', () {
-    testWidgets('create, authenticate, sync, and remove account',
+    testWidgets('create, authenticate, and remove account',
         (tester) async {
       final account = Account(
         username:
@@ -40,10 +40,6 @@ void main() {
       final tokenSet =
           await plugin.setAuthToken(account, 'api', 'test_token_123');
       expect(tokenSet, isTrue);
-
-      // Trigger sync
-      final syncResult = await plugin.syncNow(account);
-      expect(syncResult.success, isTrue);
 
       // Remove account
       final removeResult = await plugin.removeAccount(account);
