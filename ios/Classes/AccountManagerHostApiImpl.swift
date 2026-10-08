@@ -1,7 +1,7 @@
 import Foundation
 
-/// Implements [AccountManagerHostApi] using iOS Keychain, UserDefaults-backed
-/// AccountStore, and BGTaskScheduler-backed BackgroundSyncManager.
+/// Implements [AccountManagerHostApi] using iOS Keychain and the
+/// UserDefaults-backed AccountStore.
 class AccountManagerHostApiImpl: AccountManagerHostApi {
 
     private let keychainManager = KeychainManager.shared
@@ -211,10 +211,10 @@ class AccountManagerHostApiImpl: AccountManagerHostApi {
     func getPlatformCapabilities(completion: @escaping (Result<[String: Bool], Error>) -> Void) {
         let caps: [String: Bool] = [
             "systemAccountSettings": false,
-            "backgroundSync": true,
+            "backgroundSync": false,
             "keychainStorage": true,
             "cloudKitSync": false,
-            "pushNotificationSync": true,
+            "pushNotificationSync": false,
             "biometricAuth": true,
         ]
         completion(.success(caps))

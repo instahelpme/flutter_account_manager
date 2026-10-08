@@ -1,5 +1,5 @@
 /// Account Manager Plugin — cross-platform account management, authentication,
-/// and background sync via native platform APIs.
+/// and credential storage via native platform APIs.
 // ignore_for_file: unnecessary_library_name
 library flutter_account_manager;
 

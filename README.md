@@ -1,28 +1,26 @@
 # flutter_account_manager
 
-A Flutter plugin for **cross-platform account management, authentication, and background synchronisation** using native platform APIs.
+A Flutter plugin for **cross-platform account management, authentication, and credential storage** using native platform APIs.
 
-| Platform | Account Storage | Token Storage | Background Sync |
-|----------|----------------|---------------|-----------------|
-| Android  | `AccountManager` system service | `AccountManager` auth token cache | `SyncAdapter` + `ContentProvider` |
-| iOS      | Keychain Services | Keychain Services | `BGTaskScheduler` |
+| Platform | Account Storage | Token Storage |
+|----------|----------------|---------------|
+| Android  | `AccountManager` system service | `AccountManager` auth token cache |
+| iOS      | Keychain Services | Keychain Services |
 
 ---
 
 ## Why This Plugin?
 
-Managing user accounts in a cross-platform Flutter app typically means rolling your own secure storage, token refresh logic, and background sync — separately for Android and iOS. This plugin removes that burden by wrapping each platform's native account framework behind a single, type-safe Dart API.
+Managing user accounts in a cross-platform Flutter app typically means rolling your own secure storage, and token refresh logic — separately for Android and iOS. This plugin removes that burden by wrapping each platform's native account framework behind a single, type-safe Dart API.
 
 **Android `AccountManager` advantages:**
 - Credentials stored at the OS level (survive app reinstalls when configured)
 - Single sign-on (SSO) across apps from the same developer
-- Battery-efficient sync batched with other system sync operations
 - Visible to users in **Settings → Accounts**
 
 **iOS Keychain advantages:**
 - Hardware-backed encryption (Secure Enclave on modern devices)
-- `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly` — secure for background sync, never backed up to iCloud
-- `BGTaskScheduler` for reliable background processing
+- `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly` — available after first unlock, never backed up to iCloud
 
 **Pigeon for platform channels:**
 - Compile-time type safety — no stringly-typed method channel maps
@@ -35,9 +33,6 @@ Managing user accounts in a cross-platform Flutter app typically means rolling y
 - **Account CRUD** — add, get, update, remove, check existence
 - **Secure credential management** — update, validate, clear passwords
 - **Auth token lifecycle** — get, set, invalidate, refresh tokens by type
-- **Manual sync** — `syncNow()` with optional expedited mode (Android)
-- **Periodic background sync** — schedule and cancel recurring sync (min 15 min)
-- **Real-time sync events** — `Stream<SyncEvent>` (started, progress, completed, cancelled, conflict)
 - **Account change events** — `Stream<AccountEvent>` (added, removed, updated, token expired)
 - **Platform capabilities** — query what each platform supports at runtime
 
@@ -49,7 +44,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_account_manager: ^1.0.0
+  flutter_account_manager: ^2.0.0
 ```
 
 Then run:
@@ -70,8 +65,6 @@ Add these permissions inside `<manifest>`:
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
-<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
 <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
 <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
@@ -224,23 +217,7 @@ If you need complete control (e.g. different icons per build flavour), move the 
 
 ### iOS
 
-#### 1. `ios/Runner/Info.plist`
-
-Register the background task identifier and enable background modes:
-
-```xml
-<key>BGTaskSchedulerPermittedIdentifiers</key>
-<array>
-    <string>com.lkrjangid.account_manager.sync</string>
-</array>
-<key>UIBackgroundModes</key>
-<array>
-    <string>fetch</string>
-    <string>remote-notification</string>
-</array>
-```
-
-#### 2. Deployment target
+#### 1. Deployment target
 
 In `ios/Podfile`:
 
@@ -327,7 +304,7 @@ await am.updateAccount(updated);
 
 ```dart
 final removed = await am.removeAccount(account);
-// Also removes all associated auth tokens and sync records
+// Also removes all associated auth tokens
 ```
 
 ---
@@ -391,93 +368,7 @@ final List<String> types = await am.getAvailableTokenTypes(account);
 
 ---
 
-### Synchronisation
-
-#### Manual sync (immediate)
-
-```dart
-final SyncResult result = await am.syncNow(account);
-
-if (result.success) {
-  print('Downloaded: ${result.stats?.itemsDownloaded}');
-  print('Uploaded:   ${result.stats?.itemsUploaded}');
-  print('Conflicts:  ${result.stats?.conflicts}');
-  print('Duration:   ${result.stats?.syncTimeMs}ms');
-} else {
-  print('Sync failed [${result.errorCode}]: ${result.errorMessage}');
-}
-
-// Expedited = higher priority on Android (no effect on iOS)
-final result = await am.syncNow(account, expedited: true);
-```
-
-#### Periodic (background) sync
-
-```dart
-// Schedule sync every 30 minutes (minimum 15 minutes on both platforms)
-await am.addPeriodicSync(
-  account,
-  Duration(minutes: 30),
-  requiresNetwork: true,     // default true
-  requiresCharging: false,   // default false
-  extras: {'fullSync': 'true'},
-);
-
-// Check auto-sync setting
-final bool autoSync = await am.isSyncAutomatically(account);
-
-// Enable / disable
-await am.setSyncAutomatically(account, false);
-
-// Cancel periodic sync
-await am.removePeriodicSync(account);
-```
-
-#### Sync status
-
-```dart
-final SyncStatus status = await am.getSyncStatus(account);
-// SyncStatus.idle | .pending | .active | .failed
-
-// Cancel an in-progress sync
-await am.cancelSync(account);
-```
-
----
-
 ### Event Streams
-
-#### Sync events
-
-```dart
-final subscription = am.syncEvents.listen((event) {
-  switch (event) {
-    case SyncStartedEvent(:final account):
-      print('Sync started for ${account.username}');
-
-    case SyncProgressEvent(:final account, :final progress):
-      print('[${progress.phase}] ${(progress.progress * 100).toInt()}%'
-            '${progress.message != null ? ' — ${progress.message}' : ''}');
-
-    case SyncCompletedEvent(:final account, :final result):
-      if (result.success) {
-        print('Sync done: ${result.stats?.itemsDownloaded} items');
-      } else {
-        print('Sync failed: ${result.errorMessage}');
-      }
-
-    case SyncCancelledEvent(:final account):
-      print('Sync cancelled for ${account.username}');
-
-    case SyncConflictEvent(:final account, :final conflictId, :final localData, :final remoteData):
-      // Present conflict resolution UI
-      print('Conflict $conflictId — local: $localData, remote: $remoteData');
-  }
-});
-
-// Cancel when done
-await subscription.cancel();
-```
 
 #### Account events
 
@@ -507,7 +398,7 @@ await am.openAccountSettings();
 
 // Query what the current platform supports
 final Map<String, bool> caps = await am.getPlatformCapabilities();
-// Android: { systemAccountSettings: true, backgroundSync: true, ... }
+// Android: { systemAccountSettings: true, backgroundSync: false, ... }
 // iOS:     { keychainStorage: true, biometricAuth: true, ... }
 ```
 
@@ -537,17 +428,13 @@ class AuthCubit extends Cubit<AuthState> {
         accountType: 'com.example.app',
       );
       await _am.addAccount(account, password);
-      await _am.addPeriodicSync(account, Duration(minutes: 30));
-      final syncResult = await _am.syncNow(account);
-      emit(AuthAuthenticated(account: account, syncResult: syncResult));
+      emit(AuthAuthenticated(account: account));
     } on AccountManagerException catch (e) {
       emit(AuthError(message: e.message, code: e.errorCode));
     }
   }
 
   Future<void> logout(Account account) async {
-    await _am.cancelSync(account);
-    await _am.removePeriodicSync(account);
     await _am.removeAccount(account);
     emit(AuthUnauthenticated());
   }
@@ -567,10 +454,6 @@ final accountsProvider = FutureProvider.family<List<Account>, String>(
     return am.getAccounts(accountType);
   },
 );
-
-final syncEventsProvider = StreamProvider<SyncEvent>(
-  (ref) => ref.read(accountManagerProvider).syncEvents,
-);
 ```
 
 ---
@@ -584,8 +467,6 @@ All errors thrown by this plugin extend `AccountManagerException`:
 | `AccountAlreadyExistsException` | 1001 | `addAccount` called for an existing account |
 | `AccountNotFoundException` | 1002 | Account not found for an operation |
 | `AuthenticationRequiredException` | 1100 | `getAuthToken` requires user interaction |
-| `SyncNetworkException` | 1200 | Network failure during sync |
-| `SyncConflictException` | 1201 | Unresolvable sync conflict |
 | `CredentialException` | 1300 | Keychain / AccountManager credential error |
 | `PluginNotConfiguredException` | 1500 | Missing `AndroidManifest.xml` or `Info.plist` entries |
 | `UnsupportedOperationException` | 1501 | Operation not supported on this platform |
@@ -615,12 +496,10 @@ try {
 │                 Flutter App                       │
 │                                                   │
 │  AccountManagerPlugin (singleton)                 │
-│  ├── syncEvents: Stream<SyncEvent>                │
 │  └── accountEvents: Stream<AccountEvent>          │
 │                     │                             │
 │  Pigeon-generated interfaces                      │
 │  ├── AccountManagerHostApi  (Flutter → Native)    │
-│  ├── SyncCallbackFlutterApi (Native → Flutter)    │
 │  └── AccountCallbackFlutterApi (Native → Flutter) │
 └──────────────────────────────────────────────────-┘
                      │ Platform Channel (binary)
@@ -629,11 +508,8 @@ try {
   Android                        iOS
   ├── AccountManagerHostApiImpl  ├── AccountManagerHostApiImpl
   ├── AccountAuthenticator       ├── KeychainManager
-  ├── AuthenticatorService       ├── AccountStore (UserDefaults+JSON)
-  ├── SyncAdapter                ├── BackgroundSyncManager
-  ├── SyncService                │   └── BGTaskScheduler
-  ├── AppContentProvider         └── SyncEngine
-  └── DatabaseHelper (SQLite)
+  ├── AuthenticatorService       └── AccountStore (UserDefaults+JSON)
+  └── AddAccountActivity
 ```
 
 ### Account creation flow
@@ -647,28 +523,8 @@ Flutter                    Pigeon                   Android Native
   │                           │──────────────────────────>│
   │                           │              accountManager.addAccountExplicitly()
   │                           │              setUserData("displayName", ...)
-  │                           │              ContentResolver.setSyncAutomatically()
   │                           │<──────────────────────────│
   │<──────────────────────────│  Result<bool>             │
-```
-
-### Background sync flow (Android)
-
-```
-System Scheduler         SyncAdapter               Flutter Engine
-     │                       │                           │
-     │  [Scheduled trigger]  │                           │
-     │──────────────────────>│                           │
-     │                       │  onSyncStarted()          │
-     │                       │──────────────────────────>│
-     │                       │  onSyncProgress(uploading, 0%)
-     │                       │──────────────────────────>│
-     │                       │  ... server upload ...    │
-     │                       │  onSyncProgress(downloading, 50%)
-     │                       │──────────────────────────>│
-     │                       │  ... server download ...  │
-     │                       │  onSyncCompleted(stats)   │
-     │                       │──────────────────────────>│
 ```
 
 ### Token lifecycle
@@ -686,7 +542,6 @@ System Scheduler         SyncAdapter               Flutter Engine
 |---------|---------|-----|
 | Password storage | `AccountManager` (kernel-level) | Keychain (`kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`) |
 | Token storage | `AccountManager` auth token cache | Keychain |
-| Database | SQLite (SQLCipher optional, v1.1) | N/A |
 | Network | HTTPS required; certificate pinning recommended | HTTPS required |
 | Memory | Sensitive strings are not logged | Sensitive strings are not logged |
 | Backup | Android backup rules apply | `ThisDeviceOnly` — no iCloud backup |
@@ -701,8 +556,6 @@ System Scheduler         SyncAdapter               Flutter Engine
 | `getAccounts` | 30 ms | 100 ms |
 | `getAuthToken` (cached) | 10 ms | 50 ms |
 | `getAuthToken` (network) | 100 ms | 500 ms |
-| `syncNow` start | 50 ms | 200 ms |
-| Full sync (100 items) | 2 s | 10 s |
 
 ---
 
@@ -754,17 +607,6 @@ flutter test integration_test/
 
 ---
 
-## Roadmap
-
-| Version | Features |
-|---------|---------|
-| **1.0** (current) | Account CRUD, auth tokens, background sync, Pigeon interfaces |
-| **1.1** | OAuth 2.0 / OpenID Connect built-in flows, biometric auth binding, SQLCipher option |
-| **2.0** | Multi-device conflict resolution, differential sync, Firebase Auth integration |
-| **3.0** | Web, Windows, macOS, Linux support, E2E encryption |
-
----
-
 ## Contributing
 
 1. Fork the repository
@@ -785,4 +627,4 @@ MIT License — see [LICENSE](LICENSE).
 
 **Author:** Lokesh Jangid  
 **Package:** `flutter_account_manager`  
-**Version:** 1.0.0
+**Version:** 2.0.0

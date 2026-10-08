@@ -87,7 +87,7 @@ class AccountManagerPlugin {
     return _hostApi.updateAccount(account.toData());
   }
 
-  /// Removes an account from the system (including its tokens and sync data).
+  /// Removes an account from the system (including its tokens).
   Future<bool> removeAccount(Account account) {
     return _hostApi.removeAccount(account.toData());
   }

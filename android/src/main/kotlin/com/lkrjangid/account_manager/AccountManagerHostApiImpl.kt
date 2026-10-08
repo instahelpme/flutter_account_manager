@@ -2,7 +2,6 @@ package com.lkrjangid.account_manager
 
 import android.accounts.Account
 import android.accounts.AccountManager
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -331,7 +330,7 @@ class AccountManagerHostApiImpl(
     override fun getPlatformCapabilities(callback: (Result<Map<String, Boolean>>) -> Unit) {
         val caps = mapOf(
             "systemAccountSettings" to true,
-            "backgroundSync" to true,
+            "backgroundSync" to false,
             "keychainStorage" to false,
             "cloudKitSync" to false,
             "pushNotificationSync" to false,

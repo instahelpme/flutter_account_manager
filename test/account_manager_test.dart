@@ -130,18 +130,6 @@ void main() {
       const e = AuthenticationRequiredException(message: 'Auth required');
       expect(e.errorCode, equals(1100));
     });
-
-    test('SyncConflictException stores conflict data', () {
-      const e = SyncConflictException(
-        message: 'Conflict detected',
-        conflictId: 'c1',
-        localData: '{"v":1}',
-        remoteData: '{"v":2}',
-      );
-      expect(e.conflictId, equals('c1'));
-      expect(e.localData, equals('{"v":1}'));
-      expect(e.remoteData, equals('{"v":2}'));
-    });
   });
 
   group('Account model', () {

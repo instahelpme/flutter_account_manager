@@ -19,7 +19,6 @@ class AccountStore {
         var userData: [String: String]?
         let createdAt: Date
         var updatedAt: Date
-        var syncEnabled: Bool
     }
 
     // MARK: - CRUD
@@ -33,8 +32,7 @@ class AccountStore {
             displayName: account.displayName,
             userData: compactStringDict(account.userData),
             createdAt: all[key]?.createdAt ?? Date(),
-            updatedAt: Date(),
-            syncEnabled: true
+            updatedAt: Date()
         )
         all[key] = stored
         try persist(all)
@@ -79,7 +77,7 @@ class AccountStore {
 
     /// Converts a Pigeon-generated `[String?: String?]?` dictionary (which uses optional
     /// keys and optional values) into a plain `[String: String]?`, dropping any entries
-    /// where the key or value is nil.
+    /// where the key or value is nil. An empty dictionary stays empty (not nil).
     private func compactStringDict(_ dict: [String?: String?]?) -> [String: String]? {
         guard let dict = dict else { return nil }
         let result = dict.reduce(into: [String: String]()) { acc, pair in
@@ -87,7 +85,7 @@ class AccountStore {
                 acc[key] = value
             }
         }
-        return result.isEmpty ? nil : result
+        return result
     }
 
     private func accountKey(username: String, accountType: String) -> String {

@@ -3,7 +3,6 @@ package com.lkrjangid.account_manager.authenticator
 import android.accounts.Account
 import android.accounts.AccountAuthenticatorActivity
 import android.accounts.AccountManager
-import android.content.ContentResolver
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity

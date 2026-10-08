@@ -42,7 +42,7 @@ class _Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Account Manager'),
@@ -57,7 +57,6 @@ class _Home extends StatelessWidget {
               Tab(icon: Icon(Icons.manage_accounts), text: 'Accounts'),
               Tab(icon: Icon(Icons.lock), text: 'Credentials'),
               Tab(icon: Icon(Icons.token), text: 'Tokens'),
-              Tab(icon: Icon(Icons.sync), text: 'Sync'),
               Tab(icon: Icon(Icons.event), text: 'Events'),
             ],
           ),
@@ -272,7 +271,7 @@ class _AccountsTabState extends State<_AccountsTab>
       builder: (_) => AlertDialog(
         title: const Text('Remove Account'),
         content: Text('Remove ${account.username}?\n'
-            'This also deletes all tokens and sync data.'),
+            'This also deletes all tokens.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -892,7 +891,7 @@ class _TokensTabState extends State<_TokensTab>
 
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Tab 5 — Events
+// Tab 4 — Events
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _EventsTab extends StatefulWidget {
@@ -904,7 +903,6 @@ class _EventsTab extends StatefulWidget {
 
 class _EventsTabState extends State<_EventsTab>
     with AutomaticKeepAliveClientMixin {
-  final List<_EventEntry> _events = [];
   final List<_EventEntry> _accountEvents = [];
 
   @override
@@ -951,33 +949,6 @@ class _EventsTabState extends State<_EventsTab>
     super.build(context);
     return ListView(
       children: [
-        // ── Sync events ─────────────────────────────────────────────────────
-        _Section(
-          title: 'Sync Events  (${_events.length})',
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Live stream from background sync callbacks',
-                    style: TextStyle(color: Colors.grey, fontSize: 12)),
-                if (_events.isNotEmpty)
-                  TextButton(
-                    onPressed: () => setState(() => _events.clear()),
-                    child: const Text('Clear'),
-                  ),
-              ],
-            ),
-            if (_events.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(8),
-                child: Text('No sync events yet. Trigger a sync.',
-                    style: TextStyle(color: Colors.grey)),
-              )
-            else
-              ..._events.take(20).map((e) => _EventTile(entry: e)),
-          ],
-        ),
-
         // ── Account events ──────────────────────────────────────────────────
         _Section(
           title: 'Account Events  (${_accountEvents.length})',
@@ -1010,11 +981,6 @@ class _EventsTabState extends State<_EventsTab>
         _Section(
           title: 'Legend',
           children: const [
-            _KV('SyncStarted', 'Sync operation began'),
-            _KV('SyncProgress', 'Phase update (upload / download / conflict)'),
-            _KV('SyncCompleted', 'Sync finished (success or failure)'),
-            _KV('SyncCancelled', 'Sync was cancelled by the app'),
-            _KV('SyncConflict', 'Conflict requires manual resolution'),
             _KV('AccountAdded', 'New account registered'),
             _KV('AccountRemoved', 'Account deleted'),
             _KV('AccountUpdated', 'Account metadata changed'),

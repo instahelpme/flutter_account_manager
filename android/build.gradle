@@ -23,8 +23,12 @@ allprojects {
 
 apply plugin: "com.android.library"
 
+// AGP 9+ compiles Kotlin itself unless the host app opts out with
+// android.builtInKotlin=false (as the Flutter migrator does); in every other
+// case the Kotlin Gradle plugin has to be applied explicitly.
 def agpMajor = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0] as int
-if (agpMajor < 9) {
+def builtInKotlin = agpMajor >= 9 && project.findProperty("android.builtInKotlin")?.toString() != "false"
+if (!builtInKotlin) {
     apply plugin: 'kotlin-android'
 }
 
