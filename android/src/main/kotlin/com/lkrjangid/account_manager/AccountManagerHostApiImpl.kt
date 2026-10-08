@@ -6,9 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import com.lkrjangid.account_manager.utils.USER_DATA_KEYS_KEY
+import com.lkrjangid.account_manager.utils.readUserDataKeys
 import com.lkrjangid.account_manager.utils.toAccountData
 import com.lkrjangid.account_manager.utils.toAndroidAccount
 import com.lkrjangid.account_manager.utils.toBundle
+import com.lkrjangid.account_manager.utils.writeUserDataKeys
 import kotlinx.coroutines.*
 
 /** Implements [AccountManagerHostApi] using Android's AccountManager system service. */
@@ -21,6 +24,18 @@ class AccountManagerHostApiImpl(
 
     fun dispose() {
         scope.cancel()
+    }
+
+    // -------------------------------------------------------------------------
+    // Configuration
+    // -------------------------------------------------------------------------
+
+    /** The keychain access group is an iOS concept; Android accepts and ignores it. */
+    override fun initialize(
+        keychainAccessGroup: String?,
+        callback: (Result<Unit>) -> Unit,
+    ) {
+        callback(Result.success(Unit))
     }
 
     // -------------------------------------------------------------------------
@@ -94,8 +109,19 @@ class AccountManagerHostApiImpl(
                 account.displayName?.let {
                     accountManager.setUserData(androidAccount, "displayName", it)
                 }
-                account.userData?.forEach { (k, v) ->
-                    if (k != null) accountManager.setUserData(androidAccount, k, v)
+                account.userData?.let { data ->
+                    val tracked = readUserDataKeys(
+                        accountManager.getUserData(androidAccount, USER_DATA_KEYS_KEY)
+                    ).toMutableSet()
+                    data.forEach { (k, v) ->
+                        if (k != null && k != USER_DATA_KEYS_KEY) {
+                            accountManager.setUserData(androidAccount, k, v)
+                            tracked.add(k)
+                        }
+                    }
+                    accountManager.setUserData(
+                        androidAccount, USER_DATA_KEYS_KEY, writeUserDataKeys(tracked)
+                    )
                 }
                 withContext(Dispatchers.Main) { callback(Result.success(true)) }
             } catch (e: Exception) {
@@ -238,6 +264,23 @@ class AccountManagerHostApiImpl(
                         )
                     )
                 }
+            }
+        }
+    }
+
+    override fun peekAuthToken(
+        account: AccountData,
+        tokenType: String,
+        callback: (Result<String?>) -> Unit,
+    ) {
+        scope.launch {
+            try {
+                val token = accountManager
+                    .peekAuthToken(account.toAndroidAccount(), tokenType)
+                    ?.takeIf { it.isNotEmpty() }
+                withContext(Dispatchers.Main) { callback(Result.success(token)) }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) { callback(Result.failure(e)) }
             }
         }
     }

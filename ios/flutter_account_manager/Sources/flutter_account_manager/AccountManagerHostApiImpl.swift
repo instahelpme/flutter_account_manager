@@ -4,8 +4,38 @@ import Foundation
 /// UserDefaults-backed AccountStore.
 class AccountManagerHostApiImpl: AccountManagerHostApi {
 
-    private let keychainManager = KeychainManager.shared
-    private let accountStore = AccountStore.shared
+    private let lock = NSLock()
+    private var _keychainManager: KeychainManager
+    private var _accountStore: AccountStore
+
+    private var keychainManager: KeychainManager {
+        lock.lock(); defer { lock.unlock() }
+        return _keychainManager
+    }
+
+    private var accountStore: AccountStore {
+        lock.lock(); defer { lock.unlock() }
+        return _accountStore
+    }
+
+    init(accessGroup: String? = nil) {
+        let keychain = KeychainManager(accessGroup: accessGroup)
+        _keychainManager = keychain
+        _accountStore = AccountStore(keychain: keychain)
+    }
+
+    // MARK: - Configuration
+
+    /// Sets the Keychain access group (nil = default behaviour).
+    func initialize(keychainAccessGroup: String?, completion: @escaping (Result<Void, Error>) -> Void) {
+        let group = (keychainAccessGroup?.isEmpty ?? true) ? nil : keychainAccessGroup
+        let keychain = KeychainManager(accessGroup: group)
+        lock.lock()
+        _keychainManager = keychain
+        _accountStore = AccountStore(keychain: keychain)
+        lock.unlock()
+        completion(.success(()))
+    }
 
     // MARK: - Account Operations
 
@@ -61,7 +91,13 @@ class AccountManagerHostApiImpl: AccountManagerHostApi {
     func removeAccount(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
             do {
-                try self.keychainManager.deleteCredentials(
+                let keychain = self.keychainManager
+                try keychain.deleteCredentials(
+                    username: account.username,
+                    accountType: account.accountType
+                )
+                // Delete every token regardless of its type.
+                try keychain.deleteEveryToken(
                     username: account.username,
                     accountType: account.accountType
                 )
@@ -77,8 +113,10 @@ class AccountManagerHostApiImpl: AccountManagerHostApi {
     }
 
     func accountExists(username: String, accountType: String, completion: @escaping (Result<Bool, Error>) -> Void) {
-        let exists = accountStore.accountExists(username: username, accountType: accountType)
-        completion(.success(exists))
+        DispatchQueue.global(qos: .userInitiated).async {
+            let exists = self.accountStore.accountExists(username: username, accountType: accountType)
+            DispatchQueue.main.async { completion(.success(exists)) }
+        }
     }
 
     // MARK: - Credential Operations
@@ -151,6 +189,23 @@ class AccountManagerHostApiImpl: AccountManagerHostApi {
                     requiresUserInteraction: nil
                 )
                 DispatchQueue.main.async { completion(.success(result)) }
+            }
+        }
+    }
+
+    func peekAuthToken(account: AccountData, tokenType: String, completion: @escaping (Result<String?, Error>) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let token = try self.keychainManager.retrieveAuthToken(
+                    username: account.username,
+                    accountType: account.accountType,
+                    tokenType: tokenType
+                )
+                // Empty is treated like missing.
+                let value = (token?.isEmpty ?? true) ? nil : token
+                DispatchQueue.main.async { completion(.success(value)) }
+            } catch {
+                DispatchQueue.main.async { completion(.failure(error)) }
             }
         }
     }

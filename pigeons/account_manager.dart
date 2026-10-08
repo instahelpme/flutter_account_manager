@@ -57,6 +57,12 @@ class AuthTokenResult {
 
 @HostApi()
 abstract class AccountManagerHostApi {
+  // Configuration
+  /// [keychainAccessGroup] is the full iOS keychain access group (including
+  /// the app identifier prefix). Android ignores it.
+  @async
+  void initialize(String? keychainAccessGroup);
+
   // Account Operations
   @async
   bool addAccount(AccountData account, String password);
@@ -90,6 +96,10 @@ abstract class AccountManagerHostApi {
   // Auth Token Operations
   @async
   AuthTokenResult getAuthToken(AccountData account, String tokenType);
+
+  /// Returns the stored token or null. Never uses the authenticator fallback.
+  @async
+  String? peekAuthToken(AccountData account, String tokenType);
 
   @async
   bool setAuthToken(AccountData account, String tokenType, String token);

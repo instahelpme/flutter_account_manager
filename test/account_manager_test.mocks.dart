@@ -56,6 +56,17 @@ class MockAccountManagerHostApi extends _i1.Mock
       ) as String);
 
   @override
+  _i4.Future<void> initialize(String? keychainAccessGroup) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #initialize,
+          [keychainAccessGroup],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
   _i4.Future<bool> addAccount(
     _i2.AccountData? account,
     String? password,
@@ -203,6 +214,22 @@ class MockAccountManagerHostApi extends _i1.Mock
           ),
         )),
       ) as _i4.Future<_i2.AuthTokenResult>);
+
+  @override
+  _i4.Future<String?> peekAuthToken(
+    _i2.AccountData? account,
+    String? tokenType,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #peekAuthToken,
+          [
+            account,
+            tokenType,
+          ],
+        ),
+        returnValue: _i4.Future<String?>.value(),
+      ) as _i4.Future<String?>);
 
   @override
   _i4.Future<bool> setAuthToken(

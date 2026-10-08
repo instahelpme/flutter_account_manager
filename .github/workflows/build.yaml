@@ -46,8 +46,8 @@ jobs:
         run: dart run import_sorter:main --no-comments --exit-if-changed
       - name: Dart Analyze Check
         run: flutter analyze
-      # - name: Dart Test Check
-      #   run: flutter test
+      - name: Dart Test Check
+        run: flutter test
 
   build-for-android:
     name: Build for Flutter Android

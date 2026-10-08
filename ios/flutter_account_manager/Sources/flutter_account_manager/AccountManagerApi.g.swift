@@ -180,6 +180,9 @@ class AccountManagerApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Send
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol AccountManagerHostApi {
+  /// [keychainAccessGroup] is the full iOS keychain access group (including
+  /// the app identifier prefix). Android ignores it.
+  func initialize(keychainAccessGroup: String?, completion: @escaping (Result<Void, Error>) -> Void)
   func addAccount(account: AccountData, password: String, completion: @escaping (Result<Bool, Error>) -> Void)
   func getAccounts(accountType: String, completion: @escaping (Result<[AccountData], Error>) -> Void)
   func getAccount(username: String, accountType: String, completion: @escaping (Result<AccountData?, Error>) -> Void)
@@ -190,6 +193,8 @@ protocol AccountManagerHostApi {
   func validateCredentials(username: String, password: String, accountType: String, completion: @escaping (Result<Bool, Error>) -> Void)
   func clearCredentials(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void)
   func getAuthToken(account: AccountData, tokenType: String, completion: @escaping (Result<AuthTokenResult, Error>) -> Void)
+  /// Returns the stored token or null. Never uses the authenticator fallback.
+  func peekAuthToken(account: AccountData, tokenType: String, completion: @escaping (Result<String?, Error>) -> Void)
   func setAuthToken(account: AccountData, tokenType: String, token: String, completion: @escaping (Result<Bool, Error>) -> Void)
   func invalidateAuthToken(accountType: String, token: String, completion: @escaping (Result<Bool, Error>) -> Void)
   func invalidateAllTokens(account: AccountData, tokenType: String, completion: @escaping (Result<Bool, Error>) -> Void)
@@ -205,6 +210,25 @@ class AccountManagerHostApiSetup {
   /// Sets up an instance of `AccountManagerHostApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: AccountManagerHostApi?, messageChannelSuffix: String = "") {
     let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
+    /// [keychainAccessGroup] is the full iOS keychain access group (including
+    /// the app identifier prefix). Android ignores it.
+    let initializeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.initialize\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      initializeChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let keychainAccessGroupArg: String? = nilOrValue(args[0])
+        api.initialize(keychainAccessGroup: keychainAccessGroupArg) { result in
+          switch result {
+          case .success:
+            reply(wrapResult(nil))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      initializeChannel.setMessageHandler(nil)
+    }
     let addAccountChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.addAccount\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       addAccountChannel.setMessageHandler { message, reply in
@@ -381,6 +405,25 @@ class AccountManagerHostApiSetup {
       }
     } else {
       getAuthTokenChannel.setMessageHandler(nil)
+    }
+    /// Returns the stored token or null. Never uses the authenticator fallback.
+    let peekAuthTokenChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.peekAuthToken\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      peekAuthTokenChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let accountArg = args[0] as! AccountData
+        let tokenTypeArg = args[1] as! String
+        api.peekAuthToken(account: accountArg, tokenType: tokenTypeArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      peekAuthTokenChannel.setMessageHandler(nil)
     }
     let setAuthTokenChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.setAuthToken\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
