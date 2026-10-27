@@ -146,6 +146,32 @@ class AccountManagerHostApi {
 
   final String pigeonVar_messageChannelSuffix;
 
+  /// [keychainAccessGroup] is the full iOS keychain access group (including
+  /// the app identifier prefix). Android ignores it.
+  Future<void> initialize(String? keychainAccessGroup) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.initialize$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[keychainAccessGroup]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
   Future<bool> addAccount(AccountData account, String password) async {
     final String pigeonVar_channelName =
         'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.addAccount$pigeonVar_messageChannelSuffix';
@@ -431,6 +457,31 @@ class AccountManagerHostApi {
       );
     } else {
       return (pigeonVar_replyList[0] as AuthTokenResult?)!;
+    }
+  }
+
+  /// Returns the stored token or null. Never uses the authenticator fallback.
+  Future<String?> peekAuthToken(AccountData account, String tokenType) async {
+    final String pigeonVar_channelName =
+        'dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.peekAuthToken$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel =
+        BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList = await pigeonVar_channel
+        .send(<Object?>[account, tokenType]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return (pigeonVar_replyList[0] as String?);
     }
   }
 

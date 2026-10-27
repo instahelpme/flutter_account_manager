@@ -1,9 +1,9 @@
 name: flutter_account_manager
 description: "A Flutter plugin for cross-platform account management, authentication, and credential storage using native platform APIs."
-version: 2.0.0
-homepage: https://github.com/lkrjangid1/flutter_account_manager
-repository: https://github.com/lkrjangid1/flutter_account_manager
-issue_tracker: https://github.com/lkrjangid1/flutter_account_manager/issues
+version: 2.1.0
+homepage: https://github.com/instahelpme/flutter_account_manager
+repository: https://github.com/instahelpme/flutter_account_manager
+issue_tracker: https://github.com/instahelpme/flutter_account_manager/issues
 topics:
   - account
   - authentication

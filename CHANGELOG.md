@@ -1,3 +1,24 @@
+## 2.1.0
+
+All changes are additive and backward compatible; without a keychain access group the
+behaviour is unchanged.
+
+* Adds `initialize({String? keychainAccessGroup})`. On iOS every keychain query carries
+  `kSecAttrAccessGroup` when set (full group including the app identifier prefix, e.g.
+  `ABCDE12345.com.example.shared`), so apps of the same team can share accounts and tokens.
+  Android accepts and ignores the parameter.
+* iOS: with an access group, `addAccount` / `updateAccount` also write the account metadata to
+  the keychain (`<accountType>:<username>:account`). `getAccount`, `getAccounts` and
+  `accountExists` check the keychain first and fall back to `UserDefaults`; `accountExists` and
+  `getAccount` also report an account when only `<accountType>:<username>:token:*` items exist.
+* iOS: `removeAccount` now deletes all `<accountType>:<username>:token:*` items and the metadata
+  item (tokens used to survive).
+* Adds `peekAuthToken(account, tokenType)` (Android + iOS): returns the stored token or `null`
+  (also for an empty value) without the authenticator fallback that hands out the password.
+* Android: `getAccount` / `getAccounts` no longer drop `userData` keys written via the plugin.
+* Removes the stale `com.example.account_manager` Android plugin and test; points the package
+  metadata to `instahelpme`; runs `flutter test` in CI.
+
 ## 2.0.0
 
 **Breaking:** background sync support has been removed.
