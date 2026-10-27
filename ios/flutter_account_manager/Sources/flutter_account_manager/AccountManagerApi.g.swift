@@ -336,23 +336,23 @@ class AccountManagerApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Send
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol AccountManagerHostApi {
-  func addAccount(account: AccountData, password: String) async throws -> Bool
-  func getAccounts(accountType: String) async throws -> [AccountData]
-  func getAccount(username: String, accountType: String) async throws -> AccountData?
-  func updateAccount(account: AccountData) async throws -> Bool
-  func removeAccount(account: AccountData) async throws -> Bool
-  func accountExists(username: String, accountType: String) async throws -> Bool
-  func updateCredentials(account: AccountData, newPassword: String) async throws -> Bool
-  func validateCredentials(username: String, password: String, accountType: String) async throws -> Bool
-  func clearCredentials(account: AccountData) async throws -> Bool
-  func getAuthToken(account: AccountData, tokenType: String) async throws -> AuthTokenResult
-  func setAuthToken(account: AccountData, tokenType: String, token: String) async throws -> Bool
-  func invalidateAuthToken(accountType: String, token: String) async throws -> Bool
-  func invalidateAllTokens(account: AccountData, tokenType: String) async throws -> Bool
-  func getAvailableTokenTypes(account: AccountData) async throws -> [String]
-  func openAccountSettings() async throws -> Bool
-  func isConfigured() async throws -> Bool
-  func getPlatformCapabilities() async throws -> [String: Bool]
+  func addAccount(account: AccountData, password: String, completion: @escaping (Result<Bool, Error>) -> Void)
+  func getAccounts(accountType: String, completion: @escaping (Result<[AccountData], Error>) -> Void)
+  func getAccount(username: String, accountType: String, completion: @escaping (Result<AccountData?, Error>) -> Void)
+  func updateAccount(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void)
+  func removeAccount(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void)
+  func accountExists(username: String, accountType: String, completion: @escaping (Result<Bool, Error>) -> Void)
+  func updateCredentials(account: AccountData, newPassword: String, completion: @escaping (Result<Bool, Error>) -> Void)
+  func validateCredentials(username: String, password: String, accountType: String, completion: @escaping (Result<Bool, Error>) -> Void)
+  func clearCredentials(account: AccountData, completion: @escaping (Result<Bool, Error>) -> Void)
+  func getAuthToken(account: AccountData, tokenType: String, completion: @escaping (Result<AuthTokenResult, Error>) -> Void)
+  func setAuthToken(account: AccountData, tokenType: String, token: String, completion: @escaping (Result<Bool, Error>) -> Void)
+  func invalidateAuthToken(accountType: String, token: String, completion: @escaping (Result<Bool, Error>) -> Void)
+  func invalidateAllTokens(account: AccountData, tokenType: String, completion: @escaping (Result<Bool, Error>) -> Void)
+  func getAvailableTokenTypes(account: AccountData, completion: @escaping (Result<[String], Error>) -> Void)
+  func openAccountSettings(completion: @escaping (Result<Bool, Error>) -> Void)
+  func isConfigured(completion: @escaping (Result<Bool, Error>) -> Void)
+  func getPlatformCapabilities(completion: @escaping (Result<[String: Bool], Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -367,11 +367,11 @@ class AccountManagerHostApiSetup {
         let args = message as! [Any?]
         let accountArg = args[0] as! AccountData
         let passwordArg = args[1] as! String
-        Task { @MainActor in
-          do {
-            let result = try await api.addAccount(account: accountArg, password: passwordArg)
-            reply(wrapResult(result))
-          } catch {
+        api.addAccount(account: accountArg, password: passwordArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -384,11 +384,11 @@ class AccountManagerHostApiSetup {
       getAccountsChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let accountTypeArg = args[0] as! String
-        Task { @MainActor in
-          do {
-            let result = try await api.getAccounts(accountType: accountTypeArg)
-            reply(wrapResult(result))
-          } catch {
+        api.getAccounts(accountType: accountTypeArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -402,11 +402,11 @@ class AccountManagerHostApiSetup {
         let args = message as! [Any?]
         let usernameArg = args[0] as! String
         let accountTypeArg = args[1] as! String
-        Task { @MainActor in
-          do {
-            let result = try await api.getAccount(username: usernameArg, accountType: accountTypeArg)
-            reply(wrapResult(result))
-          } catch {
+        api.getAccount(username: usernameArg, accountType: accountTypeArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -419,11 +419,11 @@ class AccountManagerHostApiSetup {
       updateAccountChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let accountArg = args[0] as! AccountData
-        Task { @MainActor in
-          do {
-            let result = try await api.updateAccount(account: accountArg)
-            reply(wrapResult(result))
-          } catch {
+        api.updateAccount(account: accountArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -436,11 +436,11 @@ class AccountManagerHostApiSetup {
       removeAccountChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let accountArg = args[0] as! AccountData
-        Task { @MainActor in
-          do {
-            let result = try await api.removeAccount(account: accountArg)
-            reply(wrapResult(result))
-          } catch {
+        api.removeAccount(account: accountArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -454,11 +454,11 @@ class AccountManagerHostApiSetup {
         let args = message as! [Any?]
         let usernameArg = args[0] as! String
         let accountTypeArg = args[1] as! String
-        Task { @MainActor in
-          do {
-            let result = try await api.accountExists(username: usernameArg, accountType: accountTypeArg)
-            reply(wrapResult(result))
-          } catch {
+        api.accountExists(username: usernameArg, accountType: accountTypeArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -472,11 +472,11 @@ class AccountManagerHostApiSetup {
         let args = message as! [Any?]
         let accountArg = args[0] as! AccountData
         let newPasswordArg = args[1] as! String
-        Task { @MainActor in
-          do {
-            let result = try await api.updateCredentials(account: accountArg, newPassword: newPasswordArg)
-            reply(wrapResult(result))
-          } catch {
+        api.updateCredentials(account: accountArg, newPassword: newPasswordArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -491,11 +491,11 @@ class AccountManagerHostApiSetup {
         let usernameArg = args[0] as! String
         let passwordArg = args[1] as! String
         let accountTypeArg = args[2] as! String
-        Task { @MainActor in
-          do {
-            let result = try await api.validateCredentials(username: usernameArg, password: passwordArg, accountType: accountTypeArg)
-            reply(wrapResult(result))
-          } catch {
+        api.validateCredentials(username: usernameArg, password: passwordArg, accountType: accountTypeArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -508,11 +508,11 @@ class AccountManagerHostApiSetup {
       clearCredentialsChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let accountArg = args[0] as! AccountData
-        Task { @MainActor in
-          do {
-            let result = try await api.clearCredentials(account: accountArg)
-            reply(wrapResult(result))
-          } catch {
+        api.clearCredentials(account: accountArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -526,11 +526,11 @@ class AccountManagerHostApiSetup {
         let args = message as! [Any?]
         let accountArg = args[0] as! AccountData
         let tokenTypeArg = args[1] as! String
-        Task { @MainActor in
-          do {
-            let result = try await api.getAuthToken(account: accountArg, tokenType: tokenTypeArg)
-            reply(wrapResult(result))
-          } catch {
+        api.getAuthToken(account: accountArg, tokenType: tokenTypeArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -545,11 +545,11 @@ class AccountManagerHostApiSetup {
         let accountArg = args[0] as! AccountData
         let tokenTypeArg = args[1] as! String
         let tokenArg = args[2] as! String
-        Task { @MainActor in
-          do {
-            let result = try await api.setAuthToken(account: accountArg, tokenType: tokenTypeArg, token: tokenArg)
-            reply(wrapResult(result))
-          } catch {
+        api.setAuthToken(account: accountArg, tokenType: tokenTypeArg, token: tokenArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -563,11 +563,11 @@ class AccountManagerHostApiSetup {
         let args = message as! [Any?]
         let accountTypeArg = args[0] as! String
         let tokenArg = args[1] as! String
-        Task { @MainActor in
-          do {
-            let result = try await api.invalidateAuthToken(accountType: accountTypeArg, token: tokenArg)
-            reply(wrapResult(result))
-          } catch {
+        api.invalidateAuthToken(accountType: accountTypeArg, token: tokenArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -581,11 +581,11 @@ class AccountManagerHostApiSetup {
         let args = message as! [Any?]
         let accountArg = args[0] as! AccountData
         let tokenTypeArg = args[1] as! String
-        Task { @MainActor in
-          do {
-            let result = try await api.invalidateAllTokens(account: accountArg, tokenType: tokenTypeArg)
-            reply(wrapResult(result))
-          } catch {
+        api.invalidateAllTokens(account: accountArg, tokenType: tokenTypeArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -598,11 +598,11 @@ class AccountManagerHostApiSetup {
       getAvailableTokenTypesChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let accountArg = args[0] as! AccountData
-        Task { @MainActor in
-          do {
-            let result = try await api.getAvailableTokenTypes(account: accountArg)
-            reply(wrapResult(result))
-          } catch {
+        api.getAvailableTokenTypes(account: accountArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -613,11 +613,11 @@ class AccountManagerHostApiSetup {
     let openAccountSettingsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.openAccountSettings\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       openAccountSettingsChannel.setMessageHandler { _, reply in
-        Task { @MainActor in
-          do {
-            let result = try await api.openAccountSettings()
-            reply(wrapResult(result))
-          } catch {
+        api.openAccountSettings { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -628,11 +628,11 @@ class AccountManagerHostApiSetup {
     let isConfiguredChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.isConfigured\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       isConfiguredChannel.setMessageHandler { _, reply in
-        Task { @MainActor in
-          do {
-            let result = try await api.isConfigured()
-            reply(wrapResult(result))
-          } catch {
+        api.isConfigured { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
@@ -643,11 +643,11 @@ class AccountManagerHostApiSetup {
     let getPlatformCapabilitiesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.getPlatformCapabilities\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       getPlatformCapabilitiesChannel.setMessageHandler { _, reply in
-        Task { @MainActor in
-          do {
-            let result = try await api.getPlatformCapabilities()
-            reply(wrapResult(result))
-          } catch {
+        api.getPlatformCapabilities { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
             reply(wrapError(error))
           }
         }
