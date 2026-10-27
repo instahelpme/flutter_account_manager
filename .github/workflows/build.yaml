@@ -44,8 +44,6 @@ jobs:
         run: dart format lib/ test/ --set-exit-if-changed
       - name: Import Sorter Check
         run: dart run import_sorter:main --no-comments --exit-if-changed
-      - name: Dart Analyze Check
-        run: flutter analyze
       - name: Run Pigeon
         run: |
           dart run pigeon --input pigeons/account_manager.dart
@@ -60,8 +58,10 @@ jobs:
             git --no-pager diff
             exit 1
           fi
-      # - name: Dart Test Check
-      #   run: flutter test
+      - name: Dart Analyze Check
+        run: flutter analyze
+      - name: Dart Test Check
+        run: flutter test
 
   build-for-android:
     name: Build for Flutter Android
