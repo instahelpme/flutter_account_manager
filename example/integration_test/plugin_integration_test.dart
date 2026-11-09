@@ -17,8 +17,7 @@ void main() {
   });
 
   group('End-to-end Account Flow', () {
-    testWidgets('create, authenticate, and remove account',
-        (tester) async {
+    testWidgets('create, authenticate, and remove account', (tester) async {
       final account = Account(
         username:
             'integration_test_${DateTime.now().millisecondsSinceEpoch}@example.com',
@@ -31,14 +30,19 @@ void main() {
       expect(createResult, isTrue);
 
       // Verify account exists
-      final retrieved =
-          await plugin.getAccount(account.username, account.accountType);
+      final retrieved = await plugin.getAccount(
+        account.username,
+        account.accountType,
+      );
       expect(retrieved, isNotNull);
       expect(retrieved!.displayName, equals('Integration Test User'));
 
       // Set auth token
-      final tokenSet =
-          await plugin.setAuthToken(account, 'api', 'test_token_123');
+      final tokenSet = await plugin.setAuthToken(
+        account,
+        'api',
+        'test_token_123',
+      );
       expect(tokenSet, isTrue);
 
       // Remove account
@@ -46,8 +50,10 @@ void main() {
       expect(removeResult, isTrue);
 
       // Verify removed
-      final removed =
-          await plugin.getAccount(account.username, account.accountType);
+      final removed = await plugin.getAccount(
+        account.username,
+        account.accountType,
+      );
       expect(removed, isNull);
     });
   });
