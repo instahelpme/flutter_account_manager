@@ -82,11 +82,13 @@ final _am = AccountManagerPlugin.instance;
 
 /// Displays a snackbar with [message].
 void _snack(BuildContext context, String message, {bool error = false}) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text(message),
-    backgroundColor: error ? Colors.red[700] : null,
-    behavior: SnackBarBehavior.floating,
-  ));
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: error ? Colors.red[700] : null,
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
 }
 
 /// Section card with a title and children.
@@ -104,11 +106,12 @@ class _Section extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall
-                    ?.copyWith(color: Theme.of(context).colorScheme.primary)),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
             const Divider(),
             ...children,
           ],
@@ -133,9 +136,7 @@ class _Btn extends StatelessWidget {
         onPressed: onPressed,
         icon: Icon(icon ?? Icons.chevron_right, size: 18),
         label: Text(label),
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(42),
-        ),
+        style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(42)),
       ),
     );
   }
@@ -156,14 +157,17 @@ class _KV extends StatelessWidget {
         children: [
           SizedBox(
             width: 110,
-            child: Text('$label:',
-                style: const TextStyle(
-                    fontWeight: FontWeight.w600, fontSize: 13)),
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+            ),
           ),
           Expanded(
-              child: Text(value,
-                  style: const TextStyle(fontSize: 13,
-                      fontFamily: 'monospace'))),
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 13, fontFamily: 'monospace'),
+            ),
+          ),
         ],
       ),
     );
@@ -236,18 +240,23 @@ class _AccountsTabState extends State<_AccountsTab>
     } on AccountAlreadyExistsException {
       if (mounted) _snack(context, 'Account already exists', error: true);
     } on AccountManagerException catch (e) {
-      if (mounted) _snack(context, '[${e.errorCode}] ${e.message}', error: true);
+      if (mounted)
+        _snack(context, '[${e.errorCode}] ${e.message}', error: true);
     } finally {
       setState(() => _loading = false);
     }
   }
 
   Future<void> _checkExists(Account account) async {
-    final exists =
-        await _am.accountExists(account.username, account.accountType);
+    final exists = await _am.accountExists(
+      account.username,
+      account.accountType,
+    );
     if (mounted) {
-      _snack(context,
-          '${account.username} → ${exists ? 'EXISTS' : 'NOT FOUND'}');
+      _snack(
+        context,
+        '${account.username} → ${exists ? 'EXISTS' : 'NOT FOUND'}',
+      );
     }
   }
 
@@ -255,7 +264,10 @@ class _AccountsTabState extends State<_AccountsTab>
     try {
       final updated = account.copyWith(
         displayName: '${account.displayName ?? account.username} (updated)',
-        userData: {...?account.userData, 'updatedAt': DateTime.now().toIso8601String()},
+        userData: {
+          ...?account.userData,
+          'updatedAt': DateTime.now().toIso8601String(),
+        },
       );
       await _am.updateAccount(updated);
       if (mounted) _snack(context, 'Display name updated');
@@ -270,16 +282,19 @@ class _AccountsTabState extends State<_AccountsTab>
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Remove Account'),
-        content: Text('Remove ${account.username}?\n'
-            'This also deletes all tokens.'),
+        content: Text(
+          'Remove ${account.username}?\n'
+          'This also deletes all tokens.',
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child:
-                  const Text('Remove', style: TextStyle(color: Colors.red))),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Remove', style: TextStyle(color: Colors.red)),
+          ),
         ],
       ),
     );
@@ -306,23 +321,26 @@ class _AccountsTabState extends State<_AccountsTab>
             TextField(
               controller: _usernameCtrl,
               decoration: const InputDecoration(
-                  labelText: 'Username (email)',
-                  prefixIcon: Icon(Icons.email_outlined)),
+                labelText: 'Username (email)',
+                prefixIcon: Icon(Icons.email_outlined),
+              ),
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _displayCtrl,
               decoration: const InputDecoration(
-                  labelText: 'Display name',
-                  prefixIcon: Icon(Icons.person_outline)),
+                labelText: 'Display name',
+                prefixIcon: Icon(Icons.person_outline),
+              ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _passwordCtrl,
               decoration: const InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: Icon(Icons.lock_outline)),
+                labelText: 'Password',
+                prefixIcon: Icon(Icons.lock_outline),
+              ),
               obscureText: true,
             ),
             _Btn(
@@ -350,16 +368,20 @@ class _AccountsTabState extends State<_AccountsTab>
             else if (_accounts.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(8),
-                child: Text('No accounts found.',
-                    style: TextStyle(color: Colors.grey)),
+                child: Text(
+                  'No accounts found.',
+                  style: TextStyle(color: Colors.grey),
+                ),
               )
             else
-              ...(_accounts.map((acc) => _AccountTile(
-                    account: acc,
-                    onCheckExists: () => _checkExists(acc),
-                    onUpdate: () => _updateAccount(acc),
-                    onRemove: () => _removeAccount(acc),
-                  ))),
+              ...(_accounts.map(
+                (acc) => _AccountTile(
+                  account: acc,
+                  onCheckExists: () => _checkExists(acc),
+                  onUpdate: () => _updateAccount(acc),
+                  onRemove: () => _removeAccount(acc),
+                ),
+              )),
           ],
         ),
 
@@ -387,13 +409,13 @@ class _AccountTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExpansionTile(
       leading: CircleAvatar(
-        child: Text(
-          (account.displayName ?? account.username)[0].toUpperCase(),
-        ),
+        child: Text((account.displayName ?? account.username)[0].toUpperCase()),
       ),
       title: Text(account.displayName ?? account.username),
-      subtitle: Text(account.username,
-          style: const TextStyle(fontSize: 12, color: Colors.grey)),
+      subtitle: Text(
+        account.username,
+        style: const TextStyle(fontSize: 12, color: Colors.grey),
+      ),
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -445,8 +467,7 @@ class _PlatformCapabilitiesCard extends StatefulWidget {
       _PlatformCapabilitiesCardState();
 }
 
-class _PlatformCapabilitiesCardState
-    extends State<_PlatformCapabilitiesCard> {
+class _PlatformCapabilitiesCardState extends State<_PlatformCapabilitiesCard> {
   Map<String, bool>? _caps;
 
   Future<void> _load() async {
@@ -467,7 +488,8 @@ class _PlatformCapabilitiesCardState
       children: _caps == null
           ? [const Center(child: CircularProgressIndicator())]
           : _caps!.entries
-              .map((e) => Row(
+                .map(
+                  (e) => Row(
                     children: [
                       Icon(
                         e.value ? Icons.check_circle : Icons.cancel,
@@ -477,8 +499,9 @@ class _PlatformCapabilitiesCardState
                       const SizedBox(width: 8),
                       Text(e.key, style: const TextStyle(fontSize: 13)),
                     ],
-                  ))
-              .toList(),
+                  ),
+                )
+                .toList(),
     );
   }
 }
@@ -532,7 +555,8 @@ class _CredentialsTabState extends State<_CredentialsTab>
       _accountType,
     );
     setState(() => _validateResult = ok);
-    if (mounted) _snack(context, ok ? 'Credentials valid ✓' : 'Invalid password ✗');
+    if (mounted)
+      _snack(context, ok ? 'Credentials valid ✓' : 'Invalid password ✗');
   }
 
   Future<void> _updatePassword() async {
@@ -552,14 +576,17 @@ class _CredentialsTabState extends State<_CredentialsTab>
       builder: (_) => AlertDialog(
         title: const Text('Clear Credentials'),
         content: const Text(
-            'This removes the stored password but keeps the account.'),
+          'This removes the stored password but keeps the account.',
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Clear')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Clear'),
+          ),
         ],
       ),
     );
@@ -581,21 +608,28 @@ class _CredentialsTabState extends State<_CredentialsTab>
         _Section(
           title: 'Select Account',
           children: [
-            _Btn(label: 'Refresh accounts', icon: Icons.refresh,
-                onPressed: _loadAccounts),
+            _Btn(
+              label: 'Refresh accounts',
+              icon: Icons.refresh,
+              onPressed: _loadAccounts,
+            ),
             if (_accounts.isEmpty)
-              const Text('No accounts. Add one in the Accounts tab.',
-                  style: TextStyle(color: Colors.grey))
+              const Text(
+                'No accounts. Add one in the Accounts tab.',
+                style: TextStyle(color: Colors.grey),
+              )
             else
               DropdownButton<Account>(
                 isExpanded: true,
                 value: _selected,
                 hint: const Text('Pick an account'),
                 items: _accounts
-                    .map((a) => DropdownMenuItem(
-                          value: a,
-                          child: Text(a.displayName ?? a.username),
-                        ))
+                    .map(
+                      (a) => DropdownMenuItem(
+                        value: a,
+                        child: Text(a.displayName ?? a.username),
+                      ),
+                    )
                     .toList(),
                 onChanged: (a) => setState(() {
                   _selected = a;
@@ -617,11 +651,8 @@ class _CredentialsTabState extends State<_CredentialsTab>
                 suffixIcon: _validateResult == null
                     ? null
                     : Icon(
-                        _validateResult!
-                            ? Icons.check_circle
-                            : Icons.cancel,
-                        color:
-                            _validateResult! ? Colors.green : Colors.red,
+                        _validateResult! ? Icons.check_circle : Icons.cancel,
+                        color: _validateResult! ? Colors.green : Colors.red,
                       ),
               ),
               obscureText: true,
@@ -641,8 +672,9 @@ class _CredentialsTabState extends State<_CredentialsTab>
             TextField(
               controller: _newPwdCtrl,
               decoration: const InputDecoration(
-                  labelText: 'New password',
-                  prefixIcon: Icon(Icons.lock_reset)),
+                labelText: 'New password',
+                prefixIcon: Icon(Icons.lock_reset),
+              ),
               obscureText: true,
             ),
             _Btn(
@@ -692,8 +724,9 @@ class _TokensTabState extends State<_TokensTab>
   String? _fetchedToken;
 
   final _tokenTypeCtrl = TextEditingController(text: 'api');
-  final _tokenValueCtrl =
-      TextEditingController(text: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.demo');
+  final _tokenValueCtrl = TextEditingController(
+    text: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.demo',
+  );
 
   @override
   bool get wantKeepAlive => true;
@@ -713,7 +746,10 @@ class _TokensTabState extends State<_TokensTab>
     if (_selected == null) return;
     try {
       await _am.setAuthToken(
-          _selected!, _tokenTypeCtrl.text.trim(), _tokenValueCtrl.text.trim());
+        _selected!,
+        _tokenTypeCtrl.text.trim(),
+        _tokenValueCtrl.text.trim(),
+      );
       if (mounted) _snack(context, 'Token stored for "${_tokenTypeCtrl.text}"');
     } on AccountManagerException catch (e) {
       if (mounted) _snack(context, e.message, error: true);
@@ -723,12 +759,16 @@ class _TokensTabState extends State<_TokensTab>
   Future<void> _getToken() async {
     if (_selected == null) return;
     try {
-      final token =
-          await _am.getAuthToken(_selected!, _tokenTypeCtrl.text.trim());
+      final token = await _am.getAuthToken(
+        _selected!,
+        _tokenTypeCtrl.text.trim(),
+      );
       setState(() => _fetchedToken = token ?? '(no token stored)');
     } on AuthenticationRequiredException {
-      setState(() =>
-          _fetchedToken = '⚠ Re-authentication required — show login screen');
+      setState(
+        () =>
+            _fetchedToken = '⚠ Re-authentication required — show login screen',
+      );
     } on AccountManagerException catch (e) {
       if (mounted) _snack(context, e.message, error: true);
     }
@@ -748,12 +788,10 @@ class _TokensTabState extends State<_TokensTab>
   Future<void> _invalidateAllTokens() async {
     if (_selected == null) return;
     try {
-      await _am.invalidateAllTokens(
-          _selected!, _tokenTypeCtrl.text.trim());
+      await _am.invalidateAllTokens(_selected!, _tokenTypeCtrl.text.trim());
       setState(() => _fetchedToken = null);
       if (mounted) {
-        _snack(
-            context, 'All "${_tokenTypeCtrl.text}" tokens invalidated');
+        _snack(context, 'All "${_tokenTypeCtrl.text}" tokens invalidated');
       }
     } on AccountManagerException catch (e) {
       if (mounted) _snack(context, e.message, error: true);
@@ -765,10 +803,11 @@ class _TokensTabState extends State<_TokensTab>
     final types = await _am.getAvailableTokenTypes(_selected!);
     if (mounted) {
       _snack(
-          context,
-          types.isEmpty
-              ? 'No token types available'
-              : 'Types: ${types.join(', ')}');
+        context,
+        types.isEmpty
+            ? 'No token types available'
+            : 'Types: ${types.join(', ')}',
+      );
     }
   }
 
@@ -782,39 +821,46 @@ class _TokensTabState extends State<_TokensTab>
           title: 'Select Account & Token Type',
           children: [
             _Btn(
-                label: 'Refresh accounts',
-                icon: Icons.refresh,
-                onPressed: _loadAccounts),
+              label: 'Refresh accounts',
+              icon: Icons.refresh,
+              onPressed: _loadAccounts,
+            ),
             if (_accounts.isEmpty)
-              const Text('No accounts. Add one in the Accounts tab.',
-                  style: TextStyle(color: Colors.grey))
+              const Text(
+                'No accounts. Add one in the Accounts tab.',
+                style: TextStyle(color: Colors.grey),
+              )
             else
               DropdownButton<Account>(
                 isExpanded: true,
                 value: _selected,
                 hint: const Text('Pick an account'),
                 items: _accounts
-                    .map((a) => DropdownMenuItem(
-                        value: a, child: Text(a.displayName ?? a.username)))
+                    .map(
+                      (a) => DropdownMenuItem(
+                        value: a,
+                        child: Text(a.displayName ?? a.username),
+                      ),
+                    )
                     .toList(),
-                onChanged: (a) =>
-                    setState(() {
-                      _selected = a;
-                      _fetchedToken = null;
-                    }),
+                onChanged: (a) => setState(() {
+                  _selected = a;
+                  _fetchedToken = null;
+                }),
               ),
             const SizedBox(height: 8),
             TextField(
               controller: _tokenTypeCtrl,
               decoration: const InputDecoration(
-                  labelText: 'Token type (e.g. api, refresh)',
-                  prefixIcon: Icon(Icons.label_outline)),
+                labelText: 'Token type (e.g. api, refresh)',
+                prefixIcon: Icon(Icons.label_outline),
+              ),
             ),
             _Btn(
-                label: 'List Available Types',
-                icon: Icons.list,
-                onPressed:
-                    _selected == null ? () {} : _getAvailableTypes),
+              label: 'List Available Types',
+              icon: Icons.list,
+              onPressed: _selected == null ? () {} : _getAvailableTypes,
+            ),
           ],
         ),
 
@@ -825,8 +871,9 @@ class _TokensTabState extends State<_TokensTab>
             TextField(
               controller: _tokenValueCtrl,
               decoration: const InputDecoration(
-                  labelText: 'Token value',
-                  prefixIcon: Icon(Icons.vpn_key_outlined)),
+                labelText: 'Token value',
+                prefixIcon: Icon(Icons.vpn_key_outlined),
+              ),
               maxLines: 2,
             ),
             _Btn(
@@ -857,8 +904,7 @@ class _TokensTabState extends State<_TokensTab>
                 ),
                 child: SelectableText(
                   _fetchedToken!,
-                  style: const TextStyle(
-                      fontFamily: 'monospace', fontSize: 12),
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
                 ),
               ),
             ],
@@ -888,8 +934,6 @@ class _TokensTabState extends State<_TokensTab>
   }
 }
 
-
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Tab 4 — Events
 // ─────────────────────────────────────────────────────────────────────────────
@@ -917,29 +961,29 @@ class _EventsTabState extends State<_EventsTab>
   void _onAccountEvent(AccountEvent event) {
     final entry = switch (event) {
       AccountAddedEvent(:final account) => _EventEntry(
-          icon: Icons.person_add_alt,
-          color: Colors.green,
-          title: 'Account Added',
-          detail: account.username,
-        ),
+        icon: Icons.person_add_alt,
+        color: Colors.green,
+        title: 'Account Added',
+        detail: account.username,
+      ),
       AccountRemovedEvent(:final account) => _EventEntry(
-          icon: Icons.person_remove_outlined,
-          color: Colors.red,
-          title: 'Account Removed',
-          detail: account.username,
-        ),
+        icon: Icons.person_remove_outlined,
+        color: Colors.red,
+        title: 'Account Removed',
+        detail: account.username,
+      ),
       AccountUpdatedEvent(:final account) => _EventEntry(
-          icon: Icons.edit_outlined,
-          color: Colors.blue,
-          title: 'Account Updated',
-          detail: account.username,
-        ),
+        icon: Icons.edit_outlined,
+        color: Colors.blue,
+        title: 'Account Updated',
+        detail: account.username,
+      ),
       AuthTokenExpiredEvent(:final account, :final tokenType) => _EventEntry(
-          icon: Icons.token,
-          color: Colors.orange,
-          title: 'Token Expired',
-          detail: '"$tokenType" — ${account.username}',
-        ),
+        icon: Icons.token,
+        color: Colors.orange,
+        title: 'Token Expired',
+        detail: '"$tokenType" — ${account.username}',
+      ),
     };
     setState(() => _accountEvents.insert(0, entry));
   }
@@ -956,12 +1000,13 @@ class _EventsTabState extends State<_EventsTab>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Live stream of account lifecycle changes',
-                    style: TextStyle(color: Colors.grey, fontSize: 12)),
+                const Text(
+                  'Live stream of account lifecycle changes',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
                 if (_accountEvents.isNotEmpty)
                   TextButton(
-                    onPressed: () =>
-                        setState(() => _accountEvents.clear()),
+                    onPressed: () => setState(() => _accountEvents.clear()),
                     child: const Text('Clear'),
                   ),
               ],
@@ -969,8 +1014,10 @@ class _EventsTabState extends State<_EventsTab>
             if (_accountEvents.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(8),
-                child: Text('No account events yet.',
-                    style: TextStyle(color: Colors.grey)),
+                child: Text(
+                  'No account events yet.',
+                  style: TextStyle(color: Colors.grey),
+                ),
               )
             else
               ..._accountEvents.take(20).map((e) => _EventTile(entry: e)),
@@ -1016,10 +1063,14 @@ class _EventTile extends StatelessWidget {
       dense: true,
       contentPadding: EdgeInsets.zero,
       leading: Icon(entry.icon, color: entry.color, size: 20),
-      title: Text(entry.title,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-      subtitle: Text(entry.detail,
-          style: const TextStyle(fontSize: 11, fontFamily: 'monospace')),
+      title: Text(
+        entry.title,
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+      ),
+      subtitle: Text(
+        entry.detail,
+        style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+      ),
     );
   }
 }
