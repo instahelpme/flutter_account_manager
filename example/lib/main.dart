@@ -240,8 +240,9 @@ class _AccountsTabState extends State<_AccountsTab>
     } on AccountAlreadyExistsException {
       if (mounted) _snack(context, 'Account already exists', error: true);
     } on AccountManagerException catch (e) {
-      if (mounted)
+      if (mounted) {
         _snack(context, '[${e.errorCode}] ${e.message}', error: true);
+      }
     } finally {
       setState(() => _loading = false);
     }
@@ -555,8 +556,9 @@ class _CredentialsTabState extends State<_CredentialsTab>
       _accountType,
     );
     setState(() => _validateResult = ok);
-    if (mounted)
+    if (mounted) {
       _snack(context, ok ? 'Credentials valid ✓' : 'Invalid password ✗');
+    }
   }
 
   Future<void> _updatePassword() async {
