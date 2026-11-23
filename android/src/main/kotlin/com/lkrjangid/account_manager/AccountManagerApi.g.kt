@@ -383,9 +383,9 @@ interface AccountManagerHostApi {
             api.initialize(keychainAccessGroupArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
-                reply.reply(wrapError(error))
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
               } else {
-                reply.reply(wrapResult(null))
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(null))
               }
             }
           }
@@ -610,10 +610,10 @@ interface AccountManagerHostApi {
             api.peekAuthToken(accountArg, tokenTypeArg) { result: Result<String?> ->
               val error = result.exceptionOrNull()
               if (error != null) {
-                reply.reply(wrapError(error))
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
               } else {
                 val data = result.getOrNull()
-                reply.reply(wrapResult(data))
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
               }
             }
           }
