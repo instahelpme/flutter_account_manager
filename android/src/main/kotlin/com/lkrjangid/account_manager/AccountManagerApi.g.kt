@@ -340,6 +340,11 @@ private open class AccountManagerApiPigeonCodec : StandardMessageCodec() {
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface AccountManagerHostApi {
+  /**
+   * [keychainAccessGroup] is the full iOS keychain access group (including
+   * the app identifier prefix). Android ignores it.
+   */
+  fun initialize(keychainAccessGroup: String?, callback: (Result<Unit>) -> Unit)
   fun addAccount(account: AccountData, password: String, callback: (Result<Boolean>) -> Unit)
   fun getAccounts(accountType: String, callback: (Result<List<AccountData>>) -> Unit)
   fun getAccount(username: String, accountType: String, callback: (Result<AccountData?>) -> Unit)
@@ -350,6 +355,8 @@ interface AccountManagerHostApi {
   fun validateCredentials(username: String, password: String, accountType: String, callback: (Result<Boolean>) -> Unit)
   fun clearCredentials(account: AccountData, callback: (Result<Boolean>) -> Unit)
   fun getAuthToken(account: AccountData, tokenType: String, callback: (Result<AuthTokenResult>) -> Unit)
+  /** Returns the stored token or null. Never uses the authenticator fallback. */
+  fun peekAuthToken(account: AccountData, tokenType: String, callback: (Result<String?>) -> Unit)
   fun setAuthToken(account: AccountData, tokenType: String, token: String, callback: (Result<Boolean>) -> Unit)
   fun invalidateAuthToken(accountType: String, token: String, callback: (Result<Boolean>) -> Unit)
   fun invalidateAllTokens(account: AccountData, tokenType: String, callback: (Result<Boolean>) -> Unit)
@@ -367,6 +374,25 @@ interface AccountManagerHostApi {
     @JvmOverloads
     fun setUp(binaryMessenger: BinaryMessenger, api: AccountManagerHostApi?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.initialize$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val keychainAccessGroupArg = args[0] as String?
+            api.initialize(keychainAccessGroupArg) { result: Result<Unit> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(null))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
       run {
         val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.addAccount$separatedMessageChannelSuffix", codec)
         if (api != null) {
@@ -561,6 +587,27 @@ interface AccountManagerHostApi {
             val accountArg = args[0] as AccountData
             val tokenTypeArg = args[1] as String
             api.getAuthToken(accountArg, tokenTypeArg) { result: Result<AuthTokenResult> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AccountManagerApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AccountManagerApiPigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_account_manager.AccountManagerHostApi.peekAuthToken$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val accountArg = args[0] as AccountData
+            val tokenTypeArg = args[1] as String
+            api.peekAuthToken(accountArg, tokenTypeArg) { result: Result<String?> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(AccountManagerApiPigeonUtils.wrapError(error))

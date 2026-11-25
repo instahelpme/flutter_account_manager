@@ -39,9 +39,17 @@ class AccountManagerPlugin {
   // ---------------------------------------------------------------------------
 
   /// Initialises the plugin. Must be called before any other operations.
-  Future<void> initialize() async {
+  ///
+  /// [keychainAccessGroup] (iOS only) is the full keychain access group,
+  /// including the app identifier prefix (e.g. `ABCDE12345.com.example.shared`).
+  /// When set, all keychain items are stored in that group so that apps of the
+  /// same team can share them; the group must be listed in the app's
+  /// `keychain-access-groups` entitlement. Android accepts and ignores it.
+  Future<void> initialize({String? keychainAccessGroup}) async {
     AccountCallbackFlutterApi.setUp(
         _AccountCallbackHandler(_accountEventController));
+
+    await _hostApi.initialize(keychainAccessGroup);
 
     final configured = await _hostApi.isConfigured();
     if (!configured) {
@@ -133,6 +141,17 @@ class AccountManagerPlugin {
       );
     }
     return result.token;
+  }
+
+  /// Returns the stored token of [tokenType] for [account], or `null` if it is
+  /// absent or empty.
+  ///
+  /// Unlike [getAuthToken] this never triggers the Android authenticator, whose
+  /// fallback would hand out the account password (possibly `''`) as token.
+  Future<String?> peekAuthToken(Account account, String tokenType) async {
+    final token = await _hostApi.peekAuthToken(account.toData(), tokenType);
+    if (token == null || token.isEmpty) return null;
+    return token;
   }
 
   /// Stores or updates an auth token for [account].

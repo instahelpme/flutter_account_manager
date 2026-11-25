@@ -8,6 +8,8 @@ import 'account_manager_test.mocks.dart';
 
 @GenerateMocks([AccountManagerHostApi])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late MockAccountManagerHostApi mockHostApi;
   late AccountManagerPlugin plugin;
 
@@ -117,6 +119,85 @@ void main() {
 
       expect(result, isTrue);
       verify(mockHostApi.setAuthToken(any, 'api', 'new_token')).called(1);
+    });
+  });
+
+  group('Initialization', () {
+    test('initialize forwards the keychain access group', () async {
+      when(mockHostApi.initialize(any)).thenAnswer((_) async {});
+      when(mockHostApi.isConfigured()).thenAnswer((_) async => true);
+
+      await plugin.initialize(
+          keychainAccessGroup: 'TEAM123456.com.example.shared');
+
+      verify(mockHostApi.initialize('TEAM123456.com.example.shared')).called(1);
+    });
+
+    test('initialize without group passes null', () async {
+      when(mockHostApi.initialize(any)).thenAnswer((_) async {});
+      when(mockHostApi.isConfigured()).thenAnswer((_) async => true);
+
+      await plugin.initialize();
+
+      verify(mockHostApi.initialize(null)).called(1);
+    });
+
+    test('initialize throws when the plugin is not configured', () async {
+      when(mockHostApi.initialize(any)).thenAnswer((_) async {});
+      when(mockHostApi.isConfigured()).thenAnswer((_) async => false);
+
+      expect(
+        plugin.initialize(),
+        throwsA(isA<PluginNotConfiguredException>()),
+      );
+    });
+  });
+
+  group('peekAuthToken', () {
+    const account = Account(
+      username: 'synthetic-user',
+      accountType: 'com.example.app',
+    );
+
+    test('returns the stored token', () async {
+      when(mockHostApi.peekAuthToken(any, any))
+          .thenAnswer((_) async => 'synthetic-token');
+
+      expect(await plugin.peekAuthToken(account, 'refresh.a'),
+          equals('synthetic-token'));
+      verify(mockHostApi.peekAuthToken(any, 'refresh.a')).called(1);
+    });
+
+    test('returns null when absent', () async {
+      when(mockHostApi.peekAuthToken(any, any)).thenAnswer((_) async => null);
+
+      expect(await plugin.peekAuthToken(account, 'refresh.a'), isNull);
+    });
+
+    test('returns null for an empty value', () async {
+      when(mockHostApi.peekAuthToken(any, any)).thenAnswer((_) async => '');
+
+      expect(await plugin.peekAuthToken(account, 'refresh.a'), isNull);
+    });
+
+    test('never uses getAuthToken', () async {
+      when(mockHostApi.peekAuthToken(any, any)).thenAnswer((_) async => 'x');
+
+      await plugin.peekAuthToken(account, 'refresh.a');
+
+      verifyNever(mockHostApi.getAuthToken(any, any));
+    });
+  });
+
+  group('invalidateAllTokens', () {
+    test('delegates to hostApi', () async {
+      when(mockHostApi.invalidateAllTokens(any, any))
+          .thenAnswer((_) async => true);
+
+      const account =
+          Account(username: 'synthetic-user', accountType: 'com.example.app');
+      expect(await plugin.invalidateAllTokens(account, 'refresh.a'), isTrue);
+      verify(mockHostApi.invalidateAllTokens(any, 'refresh.a')).called(1);
     });
   });
 
